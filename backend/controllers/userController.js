@@ -28,6 +28,12 @@ const registerUser = asyncHandler(async (req, res) => {
         })
     } })
 
+// route for the user registration route
+const checkUser = asyncHandler(async (req, res) => {
+    res.json("User api")
+      
+     })
+
 
 
 
@@ -63,4 +69,4 @@ const registerUser = asyncHandler(async (req, res) => {
       }
   })
 
-  export {registerUser, authUser, getAllUsers}
+  export {registerUser, authUser, getAllUsers, checkUser}
