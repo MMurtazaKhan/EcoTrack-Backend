@@ -29,3 +29,5 @@ connectDB().then(() => {
         console.log(`server is running on port ${port}`);
     })
 })
+
+export default app;
