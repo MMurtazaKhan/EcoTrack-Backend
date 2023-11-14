@@ -1,11 +1,12 @@
 import express from "express";
-import { authUser, checkUser, getAllUsers, registerUser } from "../controllers/userController.js";
+import { authGoogle, authUser, checkUser, getAllUsers, registerUser } from "../controllers/userController.js";
 const router = express.Router()
 
 
 
 router.route('/register').post(registerUser)
-router.route('/check').post(checkUser)
+router.route('/register/google').post(authGoogle)
+router.route('/check').get(checkUser)
 router.route('/login').post(authUser)
 router.route('/all').get(getAllUsers)
 

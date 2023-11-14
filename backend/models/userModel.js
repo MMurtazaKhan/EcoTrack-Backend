@@ -14,16 +14,16 @@ const userSchema = new mongoose.Schema({
   },
   contact: {
     type: String,
-    required: true,
+    // required: true,
     unique: true,
   },
   password: {
     type: String,
-    required: true,
+    // required: true,
   },
   isAdmin: {
     type: Boolean,
-    required: true,
+    // required: true,
     default: false
   },
   image: {

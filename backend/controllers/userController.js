@@ -55,6 +55,27 @@ const checkUser = asyncHandler(async (req, res) => {
       }
   })
 
+
+
+
+    const authGoogle = asyncHandler(async (req, res) => {
+      const {email, name} = req.body
+      const user = await User.findOne({$or: [{ email: email }]})
+  
+      if (user){
+          res.json({
+              _id : user._id,
+              name: user.name,
+              email: user.email,
+              contact: user.contact,
+              token: generateToken(user._id)
+          })
+      }else {
+            
+        const newUser = new User({ name, email });
+      }
+  })
+
     const getAllUsers = asyncHandler(async (req, res) => {
       
       const users = await User.find()
@@ -69,4 +90,4 @@ const checkUser = asyncHandler(async (req, res) => {
       }
   })
 
-  export {registerUser, authUser, getAllUsers, checkUser}
+  export {registerUser, authUser, getAllUsers, checkUser, authGoogle}
