@@ -15,7 +15,7 @@ const registerUser = asyncHandler(async (req, res) => {
           res.status(400)
           throw new Error("User already exists")
       }
-      const newUser = new User({ name, email, contact,  password, image });
+      const newUser = new User({ name, email, password, image });
       const savedUser = await newUser.save();
   
       if (savedUser){
@@ -23,7 +23,6 @@ const registerUser = asyncHandler(async (req, res) => {
             _id : savedUser._id,
             name: savedUser.name,
             email: savedUser.email,
-            contact: savedUser.contact,
             token: generateToken(savedUser._id)
         })
     } })
