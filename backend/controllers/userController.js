@@ -10,7 +10,7 @@ dotenv.config()
 const registerUser = asyncHandler(async (req, res) => {
    
       const { name, email, contact, password, image } = req.body;
-      const userExists = await User.findOne({$or: [{ email: email }, { contact: contact }]})
+      const userExists = await User.findOne({$or: [{ email: email }]})
       if(userExists){
           res.status(400)
           throw new Error("User already exists")
