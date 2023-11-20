@@ -9,13 +9,14 @@ dotenv.config()
 // route for the user registration route
 const registerUser = asyncHandler(async (req, res) => {
    
-      const { name, email, contact, password, image } = req.body;
+      const { name, email, password, image } = req.body;
       const userExists = await User.findOne({$or: [{ email: email }]})
+      const contact = "873874387"
       if(userExists){
           res.status(400)
           throw new Error("User already exists")
       }
-      const newUser = new User({ name, email, password, image });
+      const newUser = new User({ name, email, contact, password, image });
       const savedUser = await newUser.save();
   
       if (savedUser){
