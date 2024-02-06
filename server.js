@@ -2,6 +2,7 @@ import express from "express";
 import connectDB from "./backend/config/db.js";
 import dotenv from "dotenv"
 import userRoutes from "./backend/routes/userRoutes.js"
+import postRoutes from "./backend/routes/postRoutes.js"
 import { errorHandler, notFound } from "./backend/middleware/error.js";
 
 dotenv.config()
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/users", userRoutes)
+app.use("/api/posts", postRoutes)
 
 // Define a sample route
 app.get('/', (req, res) => {

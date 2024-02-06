@@ -1,0 +1,39 @@
+import mongoose from "mongoose";
+import User from "./userModel.js";
+
+const postSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  postDescription: {
+    type: String,
+    required: true,
+  },
+  images: {
+    type: [String],
+    default: null,
+  },
+  tags: {
+    type: [String],
+    default: null,
+  },
+  likeCount: {
+    type: Number,
+    default: null,
+  },
+  shareCount: {
+    type: Number,
+    default: null,
+  },
+  commentCount: {
+    type: Number,
+    default: null,
+  },
+}, { timestamps: true });
+
+// Create the Post model
+const Post = mongoose.model('Post', postSchema);
+
+export default Post;
