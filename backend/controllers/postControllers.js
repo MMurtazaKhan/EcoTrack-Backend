@@ -53,6 +53,7 @@ const updatePost = asyncHandler(async (req, res) => {
    
     try {
         const postId = req.params.postId;
+        console.log("body: ",req.body)
         const updatedPost = await Post.findOneAndUpdate(
           { _id: postId, userId: req.userId }, 
           { $set: req.body },
@@ -68,7 +69,54 @@ const updatePost = asyncHandler(async (req, res) => {
         return res.status(500).json({ message: 'Internal Server Error' });
       } })
 
+
+const updatePostActivity = asyncHandler(async (req, res) => {
+    try {
+        const postId = req.params.postId;
+        const { comment, like, share } = req.body;
+        
+        const post = await Post.findById(postId);
     
+        if (!post) {
+          return res.status(404).json({ message: 'Post not found' });
+        }
+    
+        if (comment) {
+          post.comments.push({ userId: req.userId, comment });
+          post.commentCount = post.comments.length;
+        }
+    
+        if (like !== undefined) {
+            const userIndex = post.likes.indexOf(req.userId);
+            
+            if (like && userIndex === -1) {
+              // Add user ID to the likes array
+              post.likes.push(req.userId);
+              // Increment likeCount
+              post.likeCount = post.likes.length;
+            } else if (!like && userIndex !== -1) {
+              // Remove user ID from the likes array
+              post.likes.splice(userIndex, 1);
+              // Decrement likeCount
+              post.likeCount = post.likes.length;
+            }
+          }
+    
+        if (share) {
+          post.shares.push(req.userId);
+          post.shareCount = post.shares.length;
+        }
+      
+        await post.save();
+    
+        return res.status(200).json(post);
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+      }
+    });
+    
+
 const deletePost = asyncHandler(async (req, res) => {
    
     try {
@@ -88,4 +136,4 @@ const deletePost = asyncHandler(async (req, res) => {
 
 
 
-export {addPost, getAllPosts, updatePost, deletePost, getUserPosts}
+export {addPost, getAllPosts, updatePost, deletePost, getUserPosts, updatePostActivity}
