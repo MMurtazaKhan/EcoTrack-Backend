@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import userRoutes from "./backend/routes/userRoutes.js";
 import postRoutes from "./backend/routes/postRoutes.js";
 import emissionRoutes from "./backend/routes/emissionRoutes.js";
+import goalRoutes from "./backend/routes/goalRoutes.js";
 import { errorHandler, notFound } from "./backend/middleware/error.js";
 
 dotenv.config();
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/emission", emissionRoutes);
+app.use("/api/goal", goalRoutes);
 
 // Define a sample route
 app.get("/", (req, res) => {
