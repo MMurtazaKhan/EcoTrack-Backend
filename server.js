@@ -5,6 +5,7 @@ import userRoutes from "./backend/routes/userRoutes.js";
 import postRoutes from "./backend/routes/postRoutes.js";
 import emissionRoutes from "./backend/routes/emissionRoutes.js";
 import goalRoutes from "./backend/routes/goalRoutes.js";
+import foodRoutes from "./backend/routes/foodRoutes.js";
 import { errorHandler, notFound } from "./backend/middleware/error.js";
 
 dotenv.config();
@@ -17,6 +18,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/emission", emissionRoutes);
 app.use("/api/goal", goalRoutes);
+app.use("/api/food", foodRoutes);
 
 // Define a sample route
 app.get("/", (req, res) => {
