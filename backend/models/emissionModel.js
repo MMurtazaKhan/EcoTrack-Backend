@@ -20,6 +20,10 @@ const emissionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    month: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
