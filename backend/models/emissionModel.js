@@ -17,7 +17,7 @@ const emissionSchema = new mongoose.Schema(
       required: false,
     },
     carbonEmitted: {
-      type: String,
+      type: Number,
       required: true,
     },
     month: {
