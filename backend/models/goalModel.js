@@ -15,6 +15,10 @@ const goalSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    createdOn: {
+      type: Date,
+      required: true,
+    },
     goalDate: {
       type: Date,
       required: true,
@@ -25,6 +29,9 @@ const goalSchema = new mongoose.Schema(
     },
     dateWhenGoalCompleted: {
       type: Date,
+    },
+    goalText: {
+      type: String,
       required: true,
     },
   },
