@@ -73,53 +73,52 @@ const updatePost = asyncHandler(async (req, res) => {
       } })
 
 
-const updatePostActivity = asyncHandler(async (req, res) => {
-    try {
-        const postId = req.params.postId;
-        const { comment, like, share } = req.body;
-        
-        const post = await Post.findById(postId);
-    
-        if (!post) {
-          return res.status(404).json({ message: 'Post not found' });
-        }
-    
-        if (comment) {
-          post.comments.push({ userId: req.userId, comment });
-          post.commentCount = post.comments.length;
-        }
-    
-        if (like !== undefined) {
-            const userIndex = post.likes.indexOf(req.userId);
-            
-            if (like && userIndex === -1) {
-              // Add user ID to the likes array
-              post.likes.push(req.userId);
-              // Increment likeCount
-              post.likeCount = post.likes.length;
-            } else if (!like && userIndex !== -1) {
-              // Remove user ID from the likes array
-              post.likes.splice(userIndex, 1);
-              // Decrement likeCount
-              post.likeCount = post.likes.length;
-            }
-          }
-    
-        if (share) {
-          post.shares.push(req.userId);
-          post.shareCount = post.shares.length;
-        }
-      
-        await post.save();
-    
-        return res.status(200).json(post);
-      } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Internal Server Error' });
-      }
-    });
-    
+      const updatePostActivity = asyncHandler(async (req, res) => {
+        try {
+            const postId = req.params.postId;
+            const { comment, like, share } = req.body;
 
+            console.log("My Like", like)
+            
+            const post = await Post.findById(postId);
+        
+            if (!post) {
+              return res.status(404).json({ message: 'Post not found' });
+            }
+        
+            if (comment) {
+              post.comments.push({ userId: req.userId, comment });
+              post.commentCount = post.comments.length;
+            }
+        
+            if (like !== undefined) {
+                const userIndex = post.likes.indexOf(req.userId);
+                
+                if (like && userIndex === -1) {
+                  // Add user ID to the likes array
+                  post.likes.push(req.userId);
+                } else if (like && userIndex !== -1) {
+                  // Remove user ID from the likes array only if like=true and user has already liked the post
+                  post.likes.splice(userIndex, 1);
+                }
+                // Update likeCount
+                post.likeCount = post.likes.length;
+              }
+        
+            if (share) {
+              post.shares.push(req.userId);
+              post.shareCount = post.shares.length;
+            }
+          
+            await post.save();
+        
+            return res.status(200).json(post);
+          } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Internal Server Error' });
+          }
+        });
+    
 
 const deletePost = asyncHandler(async (req, res) => {
   try {
