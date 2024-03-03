@@ -61,10 +61,10 @@ export const getGoalById = asyncHandler(async (req, res) => {
 export const updateGoal = asyncHandler(async (req, res) => {
   try {
     const userId = req.userId;
-    const { category, goalValue, goalDate } = req.body;
+    const { goalStatus, dateWhenGoalCompleted } = req.body;
     const updatedGoal = await Goal.findOneAndUpdate(
       { _id: req.params.id, userId },
-      { category, goalValue, goalDate },
+      { goalStatus, dateWhenGoalCompleted },
       { new: true }
     );
     if (!updatedGoal) {
