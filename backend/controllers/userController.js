@@ -24,7 +24,7 @@ const registerUser = asyncHandler(async (req, res) => {
             _id : savedUser._id,
             name: savedUser.name,
             email: savedUser.email,
-            token: generateToken(savedUser._id)
+            token: generateToken(savedUser._id, savedUser.isAdmin)
         })
     } })
 
@@ -47,7 +47,7 @@ const checkUser = asyncHandler(async (req, res) => {
               name: user.name,
               email: user.email,
               contact: user.contact,
-              token: generateToken(user._id)
+              token: generateToken(user._id, user.isAdmin)
           })
       }else {
           res.status(401)
@@ -68,7 +68,7 @@ const checkUser = asyncHandler(async (req, res) => {
               name: user.name,
               email: user.email,
               contact: user.contact,
-              token: generateToken(user._id)
+              token: generateToken(user._id, user.isAdmin)
           })
       }else {
             
