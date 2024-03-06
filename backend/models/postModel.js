@@ -56,6 +56,20 @@ const postSchema = new mongoose.Schema({
       ref: 'User',
     },
   ],
+  actions: [
+    {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+      action: {
+        type: String,
+        required: true,
+        enum: ['like', 'comment', 'share'],
+      },
+    },
+  ],
 }, { timestamps: true });
 
 // Create the Post model

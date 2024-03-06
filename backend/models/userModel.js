@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
   image: {
     type: String,
     default: null,
+  },
+  rewards: {
+    type: Number,
+    default: null,
   }
 }, { timestamps: true });
 
