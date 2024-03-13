@@ -66,7 +66,7 @@ const postSchema = new mongoose.Schema({
       action: {
         type: String,
         required: true,
-        enum: ['like', 'comment', 'share'],
+        enum: ['like', 'comment', 'share', 'dislike'],
       },
     },
   ],
