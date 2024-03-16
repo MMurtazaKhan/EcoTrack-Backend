@@ -32,8 +32,37 @@ const registerUser = asyncHandler(async (req, res) => {
     } })
 
 // route for the user registration route
-const checkUser = asyncHandler(async (req, res) => {
-    res.json("User api")
+export const editProfile = asyncHandler(async (req, res) => {
+    const { name, email, contact, password, image } = req.body;
+  const userId = req.userId
+
+  try {
+    // Check if the user exists
+    const user = await User.findById(userId);                                         
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update user data with provided information
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (contact) user.contact = contact;
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
+    if (image) user.image = image;
+
+    // Save the updated user data
+    await user.save();
+
+    // Return the updated user data as response
+    res.json({ user });
+  } catch (error) {
+    console.error('Error updating user data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
       
      })
 
@@ -96,4 +125,4 @@ const checkUser = asyncHandler(async (req, res) => {
       }
   })
 
-  export {registerUser, authUser, getAllUsers, checkUser, authGoogle}
+  export {registerUser, authUser, getAllUsers, authGoogle}
