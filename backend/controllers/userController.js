@@ -2,6 +2,7 @@ import User from "../models/userModel.js"
 import asyncHandler from 'express-async-handler'
 import generateToken from "../utils/generateToken.js";
 import dotenv from "dotenv"
+import bcrypt from 'bcryptjs'
 
 dotenv.config()
 
@@ -68,8 +69,11 @@ export const editProfile = asyncHandler(async (req, res) => {
     if (email) user.email = email;
     if (contact) user.contact = contact;
     if (password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
+        console.log("Password ", password)
+        const salt = await bcrypt.genSalt(10);
+        console.log("Salt ", salt)
+        user.password = await bcrypt.hash(password, salt);
+        console.log("pass ", user.password)
     }
     if (image) user.image = image;
 
