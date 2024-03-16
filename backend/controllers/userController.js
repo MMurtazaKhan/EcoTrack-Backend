@@ -31,6 +31,25 @@ const registerUser = asyncHandler(async (req, res) => {
         })
     } })
 
+
+const getProfile = asyncHandler(async (req, res) => {
+   
+    const userId = req.userId;
+
+    try {
+      // Query the database to find the user profile data using the user ID
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Return the user profile data as the response
+      res.json({ user });
+    } catch (error) {
+      console.error('Error fetching user profile data:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    } })
+
 // route for the user registration route
 export const editProfile = asyncHandler(async (req, res) => {
     const { name, email, contact, password, image } = req.body;
@@ -125,4 +144,4 @@ export const editProfile = asyncHandler(async (req, res) => {
       }
   })
 
-  export {registerUser, authUser, getAllUsers, authGoogle}
+  export {registerUser, authUser, getAllUsers, authGoogle, getProfile}
