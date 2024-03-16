@@ -25,6 +25,8 @@ const registerUser = asyncHandler(async (req, res) => {
             name: savedUser.name,
             email: savedUser.email,
             rewards: savedUser.rewards,
+            image: savedUser.image,
+            isAdmin: savedUser.isAdmin,
             token: generateToken(savedUser._id, savedUser.isAdmin)
         })
     } })
@@ -49,6 +51,8 @@ const checkUser = asyncHandler(async (req, res) => {
               email: user.email,
               contact: user.contact,
               rewards: user.rewards,
+              image: user.image,
+              isAdmin: user.isAdmin,
               token: generateToken(user._id, user.isAdmin)
           })
       }else {
