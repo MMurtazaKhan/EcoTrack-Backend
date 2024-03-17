@@ -24,10 +24,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  rewards: {
+  virtualCoins: { 
     type: Number,
-    default: null,
-  }
+    default: 0 
+  },
+  rewardHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reward' }]
 }, { timestamps: true });
 
 

@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import Post from "../models/postModel.js";
+import Reward from "../models/rewardsModel.js";
 import asyncHandler from "express-async-handler";
 import generateToken from "../utils/generateToken.js";
 import dotenv from "dotenv";
@@ -200,10 +201,21 @@ const addPost = async (req, res) => {
 
   try {
     const user = await User.findById(userId);
-    
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+    // Award virtual coins to user
+    user.virtualCoins += 1; // Example: Award 1 coin per post
+    await user.save();
+
+    // Add reward to reward history
+    const reward = new Reward({
+      userId: userId,
+      action: 'post',
+      coinsEarned: 1,
+    });
+    await reward.save();
 
     const newPost = new Post({
       user: userId,
@@ -219,8 +231,7 @@ const addPost = async (req, res) => {
     console.error(error.message);
     res.status(500).json({ message: 'Server Error' });
   }
-}
-
+};
 
 // Get All Posts
 const getAllPosts = async (req, res) => {
@@ -251,10 +262,21 @@ const addComment = async (req, res) => {
     }
 
     let post = await Post.findById(postId);
-    
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
+
+    // Award virtual coins to user
+    user.virtualCoins += 1; // Example: Award 1 coin per comment
+    await user.save();
+
+    // Add reward to reward history
+    const reward = new Reward({
+      userId: userId,
+      action: 'comment',
+      coinsEarned: 1,
+    });
+    await reward.save();
 
     const newComment = {
       user: userId,
@@ -262,16 +284,19 @@ const addComment = async (req, res) => {
     };
 
     post.comments.push(newComment);
-
     await post.save();
 
-    post = await Post.findById(postId).populate({
-      path: 'comments.user',
-      select: 'name profilePic',
-    }).populate({
-      path: 'user',
-      select: 'name profilePic',
-    }).exec();
+    // Populate necessary fields before returning response
+    post = await Post.findById(postId)
+      .populate({
+        path: 'comments.user',
+        select: 'name profilePic',
+      })
+      .populate({
+        path: 'user',
+        select: 'name profilePic',
+      })
+      .exec();
 
     res.status(201).json(post);
 

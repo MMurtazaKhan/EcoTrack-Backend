@@ -9,54 +9,54 @@ dotenv.config()
 
 //Register User
 const registerUser = async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
+  try {
+      const { name, email, password, profilePic } = req.body;
 
-        let user = await User.findOne({ email });
-        if (user) {
-          return res.status(400).json({ message: 'User already exists' });
-        }
-    
-        user = new User({
-          name,
-          email,
-          password,
-        });
-    
-        const savedUser = await user.save();
-    
-        res.status(201).json({ 
-            _id : savedUser._id,
-            name: savedUser.name,
-            email: savedUser.email,
-            rewards: savedUser.rewards,
-            image: savedUser.image,
-            isAdmin: savedUser.isAdmin,
-            token: generateToken(savedUser._id, savedUser.isAdmin)
-        });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server Error' }); 
-    }
-
-
-const getProfile = asyncHandler(async (req, res) => {
-   
-    const userId = req.userId;
-
-    try {
-      // Query the database to find the user profile data using the user ID
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+      let user = await User.findOne({ email });
+      if (user) {
+        return res.status(400).json({ message: 'User already exists' });
       }
   
-      // Return the user profile data as the response
-      res.json({ user });
-    } catch (error) {
-      console.error('Error fetching user profile data:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    } })
+      user = new User({
+        name,
+        email,
+        password,
+        profilePic
+      });
+  
+      const savedUser = await user.save();
+  
+      res.status(201).json({ 
+          _id : savedUser._id,
+          name: savedUser.name,
+          email: savedUser.email,
+          profilePic: savedUser.profilePic,
+          isAdmin: savedUser.isAdmin,
+          token: generateToken(savedUser._id, savedUser.isAdmin)
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' }); 
+  }
+};
+  
+const getProfile = asyncHandler(async (req, res) => {
+     
+      const userId = req.userId;
+  
+      try {
+        // Query the database to find the user profile data using the user ID
+        const user = await User.findById(userId);
+        if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+    
+        // Return the user profile data as the response
+        res.json({ user });
+      } catch (error) {
+        console.error('Error fetching user profile data:', error);
+        res.status(500).json({ message: 'Internal server error' });
+} });
 
 // route for the user registration route
 const editProfile = asyncHandler(async (req, res) => {
@@ -94,12 +94,20 @@ const editProfile = asyncHandler(async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
       
-     })
+});
 
+//Get User Rewards History
+const getUserRewardHistory = async (req, res) => {
+  try {
+    const rewards = await Reward.find({ userId: req.params.id });
+    res.status(200).json(rewards);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
 
-
-
-    const authUser = asyncHandler(async (req, res) => {
+const authUser = asyncHandler(async (req, res) => {
       const {email, password, contact} = req.body
       const user = await User.findOne({$or: [{ email: email }, { contact: contact }]})
   
@@ -118,42 +126,50 @@ const editProfile = asyncHandler(async (req, res) => {
           res.status(401)
           throw new Error("Invalid email or Password")
       }
-  })
+});
 
+const authGoogle = asyncHandler(async (req, res) => {
+  const {email, name} = req.body
+  const user = await User.findOne({$or: [{ email: email }]})
 
+  if (user){
+      res.json({
+          _id : user._id,
+          name: user.name,
+          email: user.email,
+          contact: user.contact,
+          token: generateToken(user._id, user.isAdmin)
+      })
+  } else {
+        
+    const newUser = new User({ name, email });
+  }
+});
 
-
-    const authGoogle = asyncHandler(async (req, res) => {
-      const {email, name} = req.body
-      const user = await User.findOne({$or: [{ email: email }]})
-  
-      if (user){
-          res.json({
-              _id : user._id,
-              name: user.name,
-              email: user.email,
-              contact: user.contact,
-              token: generateToken(user._id, user.isAdmin)
-          })
-      }else {
-            
-        const newUser = new User({ name, email });
-      }
-  })
-
-    const getAllUsers = asyncHandler(async (req, res) => {
+const getAllUsers = asyncHandler(async (req, res) => {
       
-      const users = await User.find()
-  
-      if(users){
-        res.status(200)
-        res.json({users})
-      }
-      else {
-          res.status(401)
-          throw new Error("Invalid email or Password")
-      }
-  })
-}
+  const users = await User.find()
 
-  export {registerUser, updateUserDetails, authUser, getAllUsers, checkUser, authGoogle, getProfile, editProfile};
+  if(users){
+    res.status(200)
+    res.json({users})
+  }
+  else {
+      res.status(401)
+      throw new Error("Invalid email or Password")
+  }
+});
+
+// Delete All users
+const deleteAllUsers = async (req, res) => {
+  try {
+    await User.deleteMany({});
+
+    res.status(200).json({ message: 'All users deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+export {registerUser, authUser, getAllUsers, authGoogle, getProfile, editProfile, getUserRewardHistory, deleteAllUsers};
