@@ -2,6 +2,7 @@ import User from "../models/userModel.js"
 import asyncHandler from 'express-async-handler'
 import generateToken from "../utils/generateToken.js";
 import dotenv from "dotenv"
+import bcrypt from 'bcryptjs'
 
 dotenv.config()
 
@@ -28,60 +29,70 @@ const registerUser = async (req, res) => {
             _id : savedUser._id,
             name: savedUser.name,
             email: savedUser.email,
-            profilePic: savedUser.profilePic,
-            token: generateToken(savedUser._id, savedUser.isAdmin) 
+            rewards: savedUser.rewards,
+            image: savedUser.image,
+            isAdmin: savedUser.isAdmin,
+            token: generateToken(savedUser._id, savedUser.isAdmin)
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server Error' });
+      console.error(error);
+      res.status(500).json({ message: 'Server Error' }); 
     }
-};
 
-// Login User
-const login = async (req, res) => {};
 
-// Update user details
-const updateUserDetails = async (req, res) => {
+const getProfile = asyncHandler(async (req, res) => {
+   
+    const userId = req.userId;
+
     try {
-      const userId = req.params.id;
-      const updates = req.body;
-  
-      // Update user details
-      const user = await User.findByIdAndUpdate(userId, updates, { new: true });
+      // Query the database to find the user profile data using the user ID
+      const user = await User.findById(userId);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
   
-      // Return updated user
-      res.status(200).json(user);
+      // Return the user profile data as the response
+      res.json({ user });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server Error' });
-    }
-};
-
-// Delete user account
-export const deleteUserAccount = async (req, res) => {
-    try {
-      const userId = req.params.id;
-  
-      // Delete user account
-      const user = await User.findByIdAndDelete(userId);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      // Return success message
-      res.status(200).json({ message: 'User account deleted successfully' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server Error' });
-    }
-};
+      console.error('Error fetching user profile data:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    } })
 
 // route for the user registration route
-const checkUser = asyncHandler(async (req, res) => {
-    res.json("User api")
+const editProfile = asyncHandler(async (req, res) => {
+    const { name, email, contact, password, image } = req.body;
+  const userId = req.userId
+
+  try {
+    // Check if the user exists
+    const user = await User.findById(userId);                                         
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update user data with provided information
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (contact) user.contact = contact;
+    if (password) {
+        console.log("Password ", password)
+        const salt = await bcrypt.genSalt(10);
+        console.log("Salt ", salt)
+        user.password = await bcrypt.hash(password, salt);
+        console.log("pass ", user.password)
+    }
+    if (image) user.image = image;
+
+    // Save the updated user data
+    await user.save();
+
+    // Return the updated user data as response
+    res.json({ user });
+  } catch (error) {
+    console.error('Error updating user data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
       
      })
 
@@ -98,6 +109,9 @@ const checkUser = asyncHandler(async (req, res) => {
               name: user.name,
               email: user.email,
               contact: user.contact,
+              rewards: user.rewards,
+              image: user.image,
+              isAdmin: user.isAdmin,
               token: generateToken(user._id, user.isAdmin)
           })
       }else {
@@ -140,5 +154,6 @@ const checkUser = asyncHandler(async (req, res) => {
           throw new Error("Invalid email or Password")
       }
   })
+}
 
-  export {registerUser, updateUserDetails, authUser, getAllUsers, checkUser, authGoogle}
+  export {registerUser, updateUserDetails, authUser, getAllUsers, checkUser, authGoogle, getProfile, editProfile};
