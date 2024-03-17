@@ -6,8 +6,8 @@ const router = express.Router();
 
 router.route('/').get(getAllPosts)
 router.route('/add').post(authenticateUser, addPost)
-router.route('/:postId/comments').post(addComment)
-router.route('/:postId/like').post(LikePost)
+router.route('/:postId/comments').put(addComment)
+router.route('/:postId/like').put(LikePost)
 router.route('/:postId').get(getSpecificPost)
 router.route('/post/:postId').delete(authenticateUser, deletePost)
 router.route('/').delete(deleteAllPosts)
