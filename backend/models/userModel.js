@@ -12,21 +12,15 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  contact: {
-    type: String,
-    // required: true,
-    // unique: true,
-  },
   password: {
     type: String,
-    // required: true,
+    required: true,
   },
   isAdmin: {
     type: Boolean,
-    // required: true,
     default: false
   },
-  image: {
+  profilePic: {
     type: String,
     default: null,
   },
