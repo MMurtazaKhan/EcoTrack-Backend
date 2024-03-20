@@ -9,7 +9,7 @@ const addEmission = asyncHandler(async (req, res) => {
   try {
     const newEmission = await Emission.create(req.body);
 
-    return res.status(201).json(newEmission);
+    return res.status(201).json({ success: true, newEmission });
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ message: "Internal Server Error" });
