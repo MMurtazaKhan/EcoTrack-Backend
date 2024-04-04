@@ -7,6 +7,8 @@ import emissionRoutes from "./backend/routes/emissionRoutes.js";
 import goalRoutes from "./backend/routes/goalRoutes.js";
 import foodRoutes from "./backend/routes/foodRoutes.js";
 import adminRoutes from "./backend/routes/adminRoutes.js";
+import rewardRoutes from "./backend/routes/rewardRoutes.js";
+import storyRoutes from "./backend/routes/storyRoutes.js";
 import { errorHandler, notFound } from "./backend/middleware/error.js";
 
 dotenv.config();
@@ -18,6 +20,8 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/emission", emissionRoutes);
+app.use("/api/rewards", rewardRoutes);
+app.use("/api/stories", storyRoutes);
 app.use("/api/goal", goalRoutes);
 app.use("/api/food", foodRoutes);
 app.use("/api/admin", adminRoutes);
