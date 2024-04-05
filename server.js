@@ -21,7 +21,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/emission", emissionRoutes);
 app.use("/api/rewards", rewardRoutes);
-app.use("/api/stories", storyRoutes);
+app.use("/api/story", storyRoutes);
 app.use("/api/goal", goalRoutes);
 app.use("/api/food", foodRoutes);
 app.use("/api/admin", adminRoutes);

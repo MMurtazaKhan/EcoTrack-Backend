@@ -1,5 +1,5 @@
 import express from "express";
-import { createStory, deleteStory, getAllStoriesOfUser, getUsersWithStories } from "../controllers/storyController";
+import { createStory, deleteStory, getAllStoriesOfUser, getUsersWithStories } from "../controllers/storyController.js";
 const router = express.Router()
 
 router.route('/').get(getUsersWithStories)
