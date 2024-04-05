@@ -10,6 +10,14 @@ const storySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  type: {
+    type: String,
+    default: 'image'
+  },
+  finish: {
+    type: Number,
+    default: 0
+  },
   duration: {
     type: Number,
     required: true,

@@ -5,7 +5,7 @@ const createStory = async (req, res) => {
     const { userId, imageUrl, duration } = req.body;
   
     try {
-      const newStory = new Story({ user: userId, imageUrl, duration });
+      const newStory = new Story({ user: userId, imageUrl, type, duration });
       const savedStory = await newStory.save();
   
       res.status(201).json(savedStory);
@@ -62,7 +62,7 @@ const getAllStoriesOfUser = async (req, res) => {
   
     try {
       // Find all stories of the specified user
-      const userStories = await Story.find({ user: userId });
+      const userStories = await Story.find({ user: userId }).populate('user', 'name profilePic');;
   
       res.json(userStories);
     } catch (error) {
@@ -70,8 +70,6 @@ const getAllStoriesOfUser = async (req, res) => {
       res.status(500).json({ message: 'Server Error' });
     }
 };
-  
-  
 
 export { createStory, getAllStoriesOfUser, getUserStories, getUsersWithStories, deleteStory };
   
