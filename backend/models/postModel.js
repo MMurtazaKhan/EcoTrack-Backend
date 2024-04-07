@@ -12,7 +12,7 @@ const postSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    default: null,
+    default: "https://firebasestorage.googleapis.com/v0/b/ecotrack-decb2.appspot.com/o/placeholder.jpg?alt=media&token=ce98f9a3-584d-4ab3-9ce8-f38172e80848",
   },
   comments: [{
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
