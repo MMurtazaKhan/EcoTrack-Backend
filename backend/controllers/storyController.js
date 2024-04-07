@@ -5,7 +5,7 @@ const createStory = async (req, res) => {
     const { userId, imageUrl, duration } = req.body;
   
     try {
-      const newStory = new Story({ user: userId, imageUrl, type, duration });
+      const newStory = new Story({ user: userId, imageUrl, duration });
       const savedStory = await newStory.save();
   
       res.status(201).json(savedStory);
