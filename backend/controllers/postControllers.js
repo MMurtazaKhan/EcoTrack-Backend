@@ -242,7 +242,7 @@ const getAllPosts = async (req, res) => {
     }).populate({
       path: 'comments.user',
       select: 'name profilePic',
-    }).exec();
+    }).sort({ createdAt: -1 }).exec();
     res.json(posts);
   } catch (error) {
     console.log(error);
