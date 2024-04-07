@@ -107,9 +107,9 @@ const getUserRewardHistory = async (req, res) => {
 };
 
 const authUser = asyncHandler(async (req, res) => {
-  const { email, password, contact } = req.body;
+  const { email, password } = req.body;
   const user = await User.findOne({
-    $or: [{ email: email }, { contact: contact }],
+    $or: [{ email: email }],
   });
 
   if (user && (await user.matchPassword(password))) {
@@ -117,10 +117,10 @@ const authUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      contact: user.contact,
       rewards: user.rewards,
       image: user.image,
       isAdmin: user.isAdmin,
+      profilePic: user.profilePic,
       token: generateToken(user._id, user.isAdmin),
     });
   } else {
