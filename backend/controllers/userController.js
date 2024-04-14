@@ -184,7 +184,6 @@ const forgotPassword = async (req, res) => {
 
     sendMailToUser(
       email,
-      "",
       `This is the mail for forgot password. This is your ${otp} you can use it to reset your password
       `
     );
@@ -200,6 +199,28 @@ const forgotPassword = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+const verifyCode = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+
+  console.log("req.body: ", email, otp);
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  if (user && user.otp === otp && user.otpExpiration > Date.now()) {
+    // Hash the new password
+
+    res.status(200).json({ success: true, message: "Otp matched!" });
+  } else {
+    res
+      .status(400)
+      .json({ success: false, message: "Invalid OTP or OTP expired" });
+  }
+});
 
 const resetPassword = asyncHandler(async (req, res) => {
   const { email, otp, newPassword } = req.body;
@@ -236,5 +257,6 @@ export {
   getUserRewardHistory,
   deleteAllUsers,
   forgotPassword,
+  verifyCode,
   resetPassword,
 };
