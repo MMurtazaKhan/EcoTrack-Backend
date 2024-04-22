@@ -38,20 +38,11 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    next();
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
-userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
-
 // Create the User model
 const User = mongoose.model("User", userSchema);
 
 export default User;
+
+// $2a$10$qN9VVI1pUkQyBh3BmEiP7.TXUAvLMoK5ysJ1Z/hqoXjCrn15uSnzi
+
+// $2a$10$Ezaw95ir4yWQND2RMF54qO5lvT8YA1tfPzW/tSd2bNPXLdTaPmnhO

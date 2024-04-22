@@ -10,13 +10,13 @@ dotenv.config();
 //Register User
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, profilePic } = req.body;
+    let { name, email, password, profilePic } = req.body;
 
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: "User already exists" });
     }
-
+    password = await bcrypt.hash(password, 10);
     user = new User({
       name,
       email,
@@ -35,7 +35,6 @@ const registerUser = async (req, res) => {
       token: generateToken(savedUser._id, savedUser.isAdmin),
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
@@ -53,7 +52,6 @@ const getProfile = asyncHandler(async (req, res) => {
     // Return the user profile data as the response
     res.json({ user });
   } catch (error) {
-    console.error("Error fetching user profile data:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -76,11 +74,9 @@ const editProfile = asyncHandler(async (req, res) => {
     if (email) user.email = email;
     if (contact) user.contact = contact;
     if (password) {
-      console.log("Password ", password);
       const salt = await bcrypt.genSalt(10);
-      console.log("Salt ", salt);
+
       user.password = await bcrypt.hash(password, salt);
-      console.log("pass ", user.password);
     }
     if (image) user.image = image;
 
@@ -90,7 +86,6 @@ const editProfile = asyncHandler(async (req, res) => {
     // Return the updated user data as response
     res.json({ user });
   } catch (error) {
-    console.error("Error updating user data:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -101,18 +96,20 @@ const getUserRewardHistory = async (req, res) => {
     const rewards = await Reward.find({ userId: req.params.id });
     res.status(200).json(rewards);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+
   const user = await User.findOne({
-    $or: [{ email: email }],
+    email: email,
   });
 
-  if (user && (await user.matchPassword(password))) {
+  let isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (user && isPasswordValid) {
     res.json({
       _id: user._id,
       name: user.name,
@@ -165,7 +162,6 @@ const deleteAllUsers = async (req, res) => {
 
     res.status(200).json({ message: "All users deleted successfully" });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
@@ -195,15 +191,12 @@ const forgotPassword = async (req, res) => {
 
     res.status(200).json({ message: "Email sent successfully!" });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
 const verifyCode = asyncHandler(async (req, res) => {
   const { email, otp } = req.body;
-
-  console.log("req.body: ", email, otp);
 
   const user = await User.findOne({ email });
 
@@ -223,27 +216,29 @@ const verifyCode = asyncHandler(async (req, res) => {
 });
 
 const resetPassword = asyncHandler(async (req, res) => {
-  const { email, otp, newPassword } = req.body;
+  try {
+    const { email, newPassword } = req.body;
 
-  const user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-  if (user && user.otp === otp && user.otpExpiration > Date.now()) {
     // Hash the new password
+
     const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
+    const hashPassword = await bcrypt.hash(newPassword, salt);
 
     user.otp = undefined;
     user.otpExpiration = undefined;
+    user.password = hashPassword;
 
     await user.save();
 
     res.status(200).json({ message: "Password changed successfully!" });
-  } else {
-    res.status(400).json({ message: "Invalid OTP or OTP expired" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
 
