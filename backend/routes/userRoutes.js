@@ -9,6 +9,7 @@ import {
   getProfile,
   registerUser,
   resetPassword,
+  verifyCode,
 } from "../controllers/userController.js";
 import { authenticateUser } from "../middleware/error.js";
 const router = express.Router();
@@ -26,6 +27,7 @@ router.route("/edit").put(authenticateUser, editProfile);
 router.route("/profile").get(authenticateUser, getProfile);
 
 router.route("/forgotPassword").put(forgotPassword);
+router.route("/verifyCode").post(verifyCode);
 router.route("/resetPassword").put(resetPassword);
 
 // router.route('/check').get(checkUser)
