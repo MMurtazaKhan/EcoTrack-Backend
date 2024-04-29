@@ -10,7 +10,7 @@ router.route('/:postId/comments').put(addComment)
 router.route('/:postId/like').put(LikePost)
 router.route('/:postId').get(getSpecificPost)
 router.route('/post/:postId').delete(authenticateUser, deletePost)
-router.route('/').delete(authenticateUser, deleteAllPosts)
+// router.route('/').delete(authenticateUser, deleteAllPosts)
 router.route('/user/:userId').get(getUserPosts)
 
 export default router
