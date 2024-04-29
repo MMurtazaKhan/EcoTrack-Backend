@@ -366,7 +366,7 @@ const getSpecificPost = async (req, res) => {
 // Delete a Post
 const deletePost = async (req, res) => {
   try {
-    const postId = req.params.id;
+    const postId = req.params.postId;
 
     // Check if the post exists
     const post = await Post.findById(postId);
