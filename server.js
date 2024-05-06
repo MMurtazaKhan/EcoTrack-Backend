@@ -10,6 +10,8 @@ import adminRoutes from "./backend/routes/adminRoutes.js";
 import rewardRoutes from "./backend/routes/rewardRoutes.js";
 import storyRoutes from "./backend/routes/storyRoutes.js";
 import { errorHandler, notFound } from "./backend/middleware/error.js";
+import cron from "node-cron";
+import { deleteOldStories } from "./backend/utils/croneOperations.js";
 
 dotenv.config();
 
@@ -40,6 +42,11 @@ connectDB().then(() => {
   app.listen(port, () => {
     console.log(`server is running on port ${port}`);
   });
+});
+
+// To run on 8PM every day
+cron.schedule("0 20 * * *", function () {
+  deleteOldStories();
 });
 
 export default app;
