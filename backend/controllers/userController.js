@@ -56,9 +56,9 @@ const getProfile = asyncHandler(async (req, res) => {
   }
 });
 
-// route for the user registration route
+// route for the user profile editing
 const editProfile = asyncHandler(async (req, res) => {
-  const { name, email, contact, password, image } = req.body;
+  const { name, email, profilePic, password } = req.body;
   const userId = req.userId;
 
   try {
@@ -72,13 +72,11 @@ const editProfile = asyncHandler(async (req, res) => {
     // Update user data with provided information
     if (name) user.name = name;
     if (email) user.email = email;
-    if (contact) user.contact = contact;
+    if (profilePic) user.profilePic = profilePic;
     if (password) {
       const salt = await bcrypt.genSalt(10);
-
       user.password = await bcrypt.hash(password, salt);
     }
-    if (image) user.image = image;
 
     // Save the updated user data
     await user.save();
