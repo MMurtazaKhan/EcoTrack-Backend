@@ -16,6 +16,7 @@ const registerUser = async (req, res) => {
     if (user) {
       return res.status(400).json({ message: "User already exists" });
     }
+
     password = await bcrypt.hash(password, 10);
     user = new User({
       name,
@@ -26,12 +27,10 @@ const registerUser = async (req, res) => {
 
     const savedUser = await user.save();
 
+    const { password: _, ...userWithoutPassword } = savedUser.toObject();
+
     res.status(201).json({
-      _id: savedUser._id,
-      name: savedUser.name,
-      email: savedUser.email,
-      profilePic: savedUser.profilePic,
-      isAdmin: savedUser.isAdmin,
+      ...userWithoutPassword,
       token: generateToken(savedUser._id, savedUser.isAdmin),
     });
   } catch (error) {
@@ -98,28 +97,23 @@ const getUserRewardHistory = async (req, res) => {
   }
 };
 
+//Login
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({
-    email: email,
-  });
+  const user = await User.findOne({ email });
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
 
-  let isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = await bcrypt.compare(password, user.password);
 
-  if (user && isPasswordValid) {
+  if (isPasswordValid) {
+    const { password, ...userWithoutPassword } = user.toObject();
+
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      rewards: user.rewards,
-      image: user.image,
-      isAdmin: user.isAdmin,
-      profilePic: user.profilePic,
+      ...userWithoutPassword,
       token: generateToken(user._id, user.isAdmin),
     });
   } else {
