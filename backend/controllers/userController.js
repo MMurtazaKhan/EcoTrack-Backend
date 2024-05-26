@@ -128,6 +128,41 @@ const authUser = asyncHandler(async (req, res) => {
   }
 });
 
+// function for admin login
+const authAdmin = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({
+    email: email,
+  });
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  if (user.role == "user") {
+    return res
+      .status(404)
+      .json({ message: "Don't have access to this account" });
+  }
+
+  let isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (user && isPasswordValid) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      profilePic: user.profilePic,
+      token: generateToken(user._id, user.isAdmin),
+    });
+  } else {
+    res.status(401);
+    throw new Error("Invalid email or Password");
+  }
+});
+
 const authGoogle = asyncHandler(async (req, res) => {
   const { email, name } = req.body;
   const user = await User.findOne({ $or: [{ email: email }] });
@@ -247,6 +282,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 export {
   registerUser,
   authUser,
+  authAdmin,
   getAllUsers,
   authGoogle,
   getProfile,

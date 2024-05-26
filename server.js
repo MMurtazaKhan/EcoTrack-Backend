@@ -11,12 +11,21 @@ import rewardRoutes from "./backend/routes/rewardRoutes.js";
 import storyRoutes from "./backend/routes/storyRoutes.js";
 import { errorHandler, notFound } from "./backend/middleware/error.js";
 import cron from "node-cron";
+import cors from "cors";
 import { deleteOldStories } from "./backend/utils/croneOperations.js";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+// CORS middleware
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 // Routes
 app.use("/api/users", userRoutes);

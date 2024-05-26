@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  authAdmin,
   authGoogle,
   authUser,
   deleteAllUsers,
@@ -17,6 +18,7 @@ const router = express.Router();
 router.route("/").get(getAllUsers);
 router.route("/").delete(deleteAllUsers);
 router.route("/register").post(registerUser);
+router.route("/admin/login").post(authAdmin);
 router.route("/login").post(authUser);
 // router.route('/update').put(updateUserDetails)
 // router.route('/delete').delete(deleteUserAccount)

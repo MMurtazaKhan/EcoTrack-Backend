@@ -17,10 +17,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    isAdmin: {
-      type: Boolean,
-      default: false,
-    },
+
     profilePic: {
       type: String,
       default: null,
@@ -28,6 +25,10 @@ const userSchema = new mongoose.Schema(
     virtualCoins: {
       type: Number,
       default: 0,
+    },
+    role: {
+      type: String,
+      default: "user",
     },
 
     rewardHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "Reward" }],
