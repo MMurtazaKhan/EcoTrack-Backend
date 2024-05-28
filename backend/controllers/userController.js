@@ -179,7 +179,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
   if (users) {
     res.status(200);
-    res.json({ users });
+    res.json( users );
   } else {
     res.status(401);
     throw new Error("Invalid email or Password");
