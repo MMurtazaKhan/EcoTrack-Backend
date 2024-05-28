@@ -38,8 +38,9 @@ const registerUser = async (req, res) => {
   }
 };
 
+//Get Specific User
 const getProfile = asyncHandler(async (req, res) => {
-  const userId = req.userId;
+  const userId = req.params.id;
 
   try {
     // Query the database to find the user profile data using the user ID
@@ -48,8 +49,10 @@ const getProfile = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    const { password, ...userWithoutPassword } = user.toObject();
+
     // Return the user profile data as the response
-    res.json({ user });
+    res.json({ userWithoutPassword });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
