@@ -7,7 +7,8 @@ import {authenticateAdmin} from '../middleware/error.js';
 const router = express.Router();
 
 router.route('/users').get(authenticateAdmin, getUsers);
-router.delete('/users/:id', authenticateAdmin, deleteUser);
+router.delete('/users/:id',  deleteUser);
+// router.delete('/users/:id', authenticateAdmin, deleteUser);
 router.route('/goals').get(authenticateAdmin, getAllUsersGoals);
 router.route('/posts/:postId').delete(authenticateAdmin, deletePost);
 router.route('/emissions').get(authenticateAdmin, getAllEmissions);

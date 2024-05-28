@@ -7,6 +7,7 @@ import emissionRoutes from "./backend/routes/emissionRoutes.js";
 import goalRoutes from "./backend/routes/goalRoutes.js";
 import foodRoutes from "./backend/routes/foodRoutes.js";
 import adminRoutes from "./backend/routes/adminRoutes.js";
+import companyRoutes from "./backend/routes/compnayRoutes.js";
 import rewardRoutes from "./backend/routes/rewardRoutes.js";
 import storyRoutes from "./backend/routes/storyRoutes.js";
 import { errorHandler, notFound } from "./backend/middleware/error.js";
@@ -36,6 +37,7 @@ app.use("/api/story", storyRoutes);
 app.use("/api/goal", goalRoutes);
 app.use("/api/food", foodRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/company", companyRoutes);
 
 // Define a sample route
 app.get("/", (req, res) => {
