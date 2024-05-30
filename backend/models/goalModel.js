@@ -4,35 +4,28 @@ const goalSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Assuming you have a User model
+      ref: "User",
       required: true,
     },
     category: {
       type: String,
       required: true,
     },
-    goalValue: {
+    percentage: {
       type: Number,
       required: true,
     },
-    createdOn: {
+    startDate: {
       type: Date,
       required: true,
     },
-    goalDate: {
+    endDate: {
       type: Date,
-      required: true,
+      required: true
     },
-    goalStatus: {
-      type: String,
-      required: true,
-    },
-    dateWhenGoalCompleted: {
-      type: Date,
-    },
-    goalText: {
-      type: String,
-      required: true,
+    goalAchieved: {
+      type: Boolean,
+      default: false
     },
   },
   { timestamps: true }
