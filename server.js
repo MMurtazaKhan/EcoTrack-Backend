@@ -10,6 +10,8 @@ import adminRoutes from "./backend/routes/adminRoutes.js";
 import companyRoutes from "./backend/routes/compnayRoutes.js";
 import rewardRoutes from "./backend/routes/rewardRoutes.js";
 import storyRoutes from "./backend/routes/storyRoutes.js";
+import voucherRoutes from "./backend/routes/voucherRoutes.js";
+
 import { errorHandler, notFound } from "./backend/middleware/error.js";
 import cron from "node-cron";
 import cors from "cors";
@@ -38,6 +40,7 @@ app.use("/api/goal", goalRoutes);
 app.use("/api/food", foodRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/company", companyRoutes);
+app.use("/api/voucher", voucherRoutes);
 
 // Define a sample route
 app.get("/", (req, res) => {

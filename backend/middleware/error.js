@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import User from "../models/userModel.js";
 
 const notFound = (req, res, next) => {
   res.status(404);
@@ -38,31 +39,36 @@ const authenticateUser = (req, res, next) => {
 };
 
 //   // Middleware to authenticate admin users
-const authenticateAdmin = (req, res, next) => {
-  const token = req.headers.authorization;
+const authenticateAdmin = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
 
-  if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Unauthorized: Bearer token is missing" });
-  }
-
-  jwt.verify(token.split(" ")[1], process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      console.log("error ", err.message);
-      return res.status(401).json({ message: "Unauthorized: Invalid token" });
-    }
-
-    // Check if the user is an admin
-    if (!decoded.isAdmin) {
+    if (!token) {
       return res
         .status(403)
-        .json({ message: "Forbidden: User is not an admin" });
+        .json({ message: "You're not logged in. Please login first" });
     }
 
-    req.userId = decoded.id;
-    next();
-  });
+    const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded) {
+      const user = await User.findById(decoded.id); // Assume your JWT stores user ID in 'id' field
+      if (!user || user.role !== "admin") {
+        return res
+          .status(403)
+          .json({ message: "Forbidden: Admin access required" });
+      }
+      req.user = user;
+      return next();
+    }
+  } catch (error) {
+    console.error("err", error);
+    if (error.name === "JsonWebTokenError") {
+      return res.status(403).json({ message: "Unauthorized Access" });
+    } else {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+  }
 };
 
 export { notFound, errorHandler, authenticateUser, authenticateAdmin };
