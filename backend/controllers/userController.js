@@ -178,14 +178,14 @@ const authGoogle = asyncHandler(async (req, res) => {
 });
 
 const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.find();
+  const users = await User.find({ role: "user" });
 
-  if (users) {
+  if (users.length > 0) {
     res.status(200);
-    res.json( users );
+    res.json(users);
   } else {
-    res.status(401);
-    throw new Error("Invalid email or Password");
+    res.status(409);
+    throw new Error("No user found");
   }
 });
 
