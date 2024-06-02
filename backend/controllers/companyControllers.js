@@ -2,6 +2,7 @@ import User from "../models/userModel.js";
 import asyncHandler from "express-async-handler";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
+import { sendMailToCompany } from "../utils/email.js";
 
 const registerCompany = async (req, res) => {
     try {
@@ -12,18 +13,19 @@ const registerCompany = async (req, res) => {
         return res.status(400).json({ message: "Company already exists" });
       }
   
-      password = await bcrypt.hash(password, 10);
+      let hashed_password = await bcrypt.hash(password, 10);
       user = new User({
         name,
         email,
-        password,
+        password:hashed_password,
         role: "company"
       });
   
       const savedUser = await user.save();
   
       const { password: _, ...userWithoutPassword } = savedUser.toObject();
-  
+      
+      sendMailToCompany(email, name, email, password)
       res.status(201).json({
         ...userWithoutPassword,
       });
