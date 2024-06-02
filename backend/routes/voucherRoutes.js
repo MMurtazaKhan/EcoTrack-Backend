@@ -12,8 +12,6 @@ const router = express.Router();
 router.route("/addVoucher").post(authenticateAdmin, addVoucher);
 router.route("/allVouchers").get(authenticateAdmin, allVouchers);
 router.route("/disableVoucher").put(authenticateAdmin, disableVoucher);
-router
-  .route("/allVouchersForUsers")
-  .get(authenticateAdmin, allVouchersForUsers);
+router.route("/allVouchersForUsers").get(allVouchersForUsers);
 
 export default router;
