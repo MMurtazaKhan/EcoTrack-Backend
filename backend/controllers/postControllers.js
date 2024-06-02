@@ -63,20 +63,20 @@ dotenv.config();
 // });
 
 // // route for updating post
-// const updatePost = asyncHandler(async (req, res) => {  
+// const updatePost = asyncHandler(async (req, res) => {
 //     try {
 //         const postId = req.params.postId;
 //         console.log("body: ",req.body)
 //         const updatedPost = await Post.findOneAndUpdate(
-//           { _id: postId, userId: req.userId }, 
+//           { _id: postId, userId: req.userId },
 //           { $set: req.body },
 //           { new: true }
 //         );
-    
+
 //         if (!updatedPost) {
 //           return res.status(404).json({ message: 'Post not found or unauthorized' });
 //         }
-    
+
 //         return res.status(200).json(updatedPost);
 //       } catch (error) {
 //         return res.status(500).json({ message: 'Internal Server Error' });
@@ -86,19 +86,19 @@ dotenv.config();
 //         try {
 //           const postId = req.params.postId;
 //           const { comment, like, share } = req.body;
-          
+
 //           const post = await Post.findById(postId).populate('comments.userId', 'name image').exec();
 //           if (!post) {
 //             return res.status(404).json({ message: 'Post not found' });
 //           }
-          
+
 //           // Fetch the owner of the post
 //           const postOwner = await User.findById(post.userId);
 //           const reqUser = await User.findById(req.userId);
-      
+
 //           // Check if the user has already performed the action
 //           const userAction = post.actions.find(action => action.userId.equals(req.userId));
-      
+
 //           if (comment && !userAction?.action.includes('comment')) {
 //             post.comments.push({ userId: req.userId, comment });
 //             post.commentCount = post.comments.length;
@@ -108,7 +108,7 @@ dotenv.config();
 //             // Add the action to the post
 //             post.actions.push({ userId: req.userId, action: 'comment' });
 //           }
-      
+
 //           if (like !== undefined) {
 //             const userIndex = post.likes.findIndex(userId => userId.equals(req.userId));
 //             console.log(post.likes)
@@ -133,7 +133,7 @@ dotenv.config();
 //             // Update likeCount
 //             post.likeCount = post.likes.length;
 //           }
-      
+
 //           if (share && !userAction?.action.includes('share')) {
 //             post.shares.push(req.userId);
 //             post.shareCount = post.shares.length;
@@ -143,12 +143,12 @@ dotenv.config();
 //             // Add the action to the post
 //             post.actions.push({ userId: req.userId, action: 'share' });
 //           }
-          
+
 //           // Save the updated user model of the post owner to reflect rewards changes
 //           await postOwner.save();
 //           await reqUser.save();
 //           await post.save();
-      
+
 //           // Construct response object
 //           const response = {
 //             ...post.toJSON(),
@@ -167,13 +167,13 @@ dotenv.config();
 //               comment: comment.comment
 //             }))
 //           };
-      
+
 //           return res.status(200).json(response);
 //         } catch (error) {
 //           console.error(error);
 //           return res.status(500).json({ message: 'Internal Server Error' });
 //         }
-// });     
+// });
 
 // const deletePost = asyncHandler(async (req, res) => {
 //   try {
@@ -202,7 +202,7 @@ const addPost = async (req, res) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Award virtual coins to user
@@ -212,7 +212,7 @@ const addPost = async (req, res) => {
     // Add reward to reward history
     const reward = new Reward({
       userId: userId,
-      action: 'post',
+      action: "post",
       coinsEarned: 1,
     });
     await reward.save();
@@ -220,33 +220,36 @@ const addPost = async (req, res) => {
     const newPost = new Post({
       user: userId,
       image,
-      postDescription
+      postDescription,
     });
 
     const savedPost = await newPost.save();
 
     res.status(201).json(savedPost);
-    
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
 // Get All Posts
 const getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find().populate({
-      path: 'user',
-      select: 'name profilePic',
-    }).populate({
-      path: 'comments.user',
-      select: 'name profilePic',
-    }).sort({ createdAt: -1 }).exec();
+    const posts = await Post.find()
+      .populate({
+        path: "user",
+        select: "name profilePic",
+      })
+      .populate({
+        path: "comments.user",
+        select: "name profilePic",
+      })
+      .sort({ createdAt: -1 })
+      .exec();
     res.json(posts);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -258,12 +261,12 @@ const addComment = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     let post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
+      return res.status(404).json({ message: "Post not found" });
     }
 
     // Award virtual coins to user
@@ -273,7 +276,7 @@ const addComment = async (req, res) => {
     // Add reward to reward history
     const reward = new Reward({
       userId: userId,
-      action: 'comment',
+      action: "comment",
       coinsEarned: 1,
     });
     await reward.save();
@@ -289,20 +292,19 @@ const addComment = async (req, res) => {
     // Populate necessary fields before returning response
     post = await Post.findById(postId)
       .populate({
-        path: 'comments.user',
-        select: 'name profilePic',
+        path: "comments.user",
+        select: "name profilePic",
       })
       .populate({
-        path: 'user',
-        select: 'name profilePic',
+        path: "user",
+        select: "-password",
       })
       .exec();
 
-    res.status(201).json(post);
-
+    res.status(201).json({ post, user });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -314,12 +316,12 @@ const LikePost = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
+      return res.status(404).json({ message: "Post not found" });
     }
 
     const alreadyLikedIndex = post.likes.indexOf(userId);
@@ -335,7 +337,7 @@ const LikePost = async (req, res) => {
     res.status(200).json(post);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -344,22 +346,24 @@ const getSpecificPost = async (req, res) => {
   try {
     const postId = req.params.postId;
 
-    const post = await Post.findById(postId).populate({
-      path: 'comments.user',
-      select: 'name profilePic',
-    }).populate({
-      path: 'user',
-      select: 'name profilePic',
-    }).exec();
+    const post = await Post.findById(postId)
+      .populate({
+        path: "comments.user",
+        select: "name profilePic",
+      })
+      .populate({
+        path: "user",
+        select: "name profilePic",
+      })
+      .exec();
     if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
+      return res.status(404).json({ message: "Post not found" });
     }
 
     res.status(200).json(post);
-    
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -371,16 +375,16 @@ const deletePost = async (req, res) => {
     // Check if the post exists
     const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
+      return res.status(404).json({ message: "Post not found" });
     }
 
     // Delete the post
     await Post.findByIdAndDelete(postId);
 
-    res.status(200).json({ message: 'Post deleted successfully' });
+    res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -389,10 +393,10 @@ const deleteAllPosts = async (req, res) => {
   try {
     await Post.deleteMany({});
 
-    res.status(200).json({ message: 'All posts deleted successfully' });
+    res.status(200).json({ message: "All posts deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -402,13 +406,25 @@ const getUserPosts = async (req, res) => {
     const userId = req.params.userId;
 
     // Retrieve all posts of the specified user
-    const posts = await Post.find({ user: userId }).populate('user', 'name profilePic').populate('comments.user', 'name profilePic').exec();
+    const posts = await Post.find({ user: userId })
+      .populate("user", "name profilePic")
+      .populate("comments.user", "name profilePic")
+      .exec();
 
     res.status(200).json(posts);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
-}
+};
 
-export { addPost, getAllPosts, getSpecificPost, getUserPosts, deletePost, addComment, LikePost, deleteAllPosts };
+export {
+  addPost,
+  getAllPosts,
+  getSpecificPost,
+  getUserPosts,
+  deletePost,
+  addComment,
+  LikePost,
+  deleteAllPosts,
+};

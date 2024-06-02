@@ -1,34 +1,39 @@
-// Import Goal model
 import Goal from "../models/goalModel.js";
 import asyncHandler from "express-async-handler";
 
 // Create a new goal
-export const createGoal = asyncHandler(async (req, res) => {
+export const addGoal = asyncHandler(async (req, res) => {
   try {
-    const {
-      category,
-      goalValue,
-      goalDate,
-      createdOn,
-      goalStatus,
-      dateWhenGoalCompleted,
-      goalText,
-    } = req.body;
+    const { category, percentage, startDate, endDate, goalAchieved } = req.body;
     const userId = req.userId;
+
     const newGoal = await Goal.create({
       userId,
       category,
-      goalValue,
-      goalDate,
-      createdOn,
-      goalStatus,
-      dateWhenGoalCompleted,
-      goalText,
+      percentage,
+      startDate,
+      endDate,
+      goalAchieved,
     });
+
     return res.status(201).json(newGoal);
   } catch (error) {
-    return res.json({ message: error.message });
-    // return res.status(500).json({ message: 'Internal Server Error' });
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+export const getWeeklyGoalsData = asyncHandler(async (req, res) => {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const recentGoals = await Goal.find({
+      createdAt: { $gte: sevenDaysAgo }
+    });
+
+    return res.status(200).json(recentGoals);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
   }
 });
 
