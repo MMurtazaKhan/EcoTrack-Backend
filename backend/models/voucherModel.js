@@ -26,6 +26,12 @@ const voucherSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    users: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );
