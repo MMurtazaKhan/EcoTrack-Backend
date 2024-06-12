@@ -61,6 +61,8 @@ const getProfile = asyncHandler(async (req, res) => {
 // route for the user profile editing
 const editProfile = asyncHandler(async (req, res) => {
   const { name, email, profilePic, password } = req.body;
+  console.log("image from client is", profilePic);
+  // console.log("image from client is", typeof profilePic);
   const userId = req.userId;
 
   try {
@@ -73,7 +75,16 @@ const editProfile = asyncHandler(async (req, res) => {
 
     // Update user data with provided information
     if (name) user.name = name;
-    if (email) user.email = email;
+    if (email) {
+      if (User.findOne({ email })) {
+        console.log("user already exist with this email");
+        return res
+          .status(500)
+          .json({ message: "user already exist with this email" });
+      } else {
+        user.email = email;
+      }
+    }
     if (profilePic) user.profilePic = profilePic;
     if (password) {
       const salt = await bcrypt.genSalt(10);
@@ -86,7 +97,7 @@ const editProfile = asyncHandler(async (req, res) => {
     // Return the updated user data as response
     res.json({ user });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", error: error });
   }
 });
 
