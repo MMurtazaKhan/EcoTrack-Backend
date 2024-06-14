@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    companyName: {
+      type: String,
+      default: false,
+    },
+
     role: {
       type: String,
       default: "user",
