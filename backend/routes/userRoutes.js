@@ -1,8 +1,10 @@
 import express from "express";
 import {
+  adminDashboard,
   authAdmin,
   authGoogle,
   authUser,
+  companyDashboard,
   deleteAllUsers,
   editProfile,
   forgotPassword,
@@ -16,6 +18,9 @@ import {
 } from "../controllers/userController.js";
 import { authenticateUser } from "../middleware/error.js";
 const router = express.Router();
+
+router.route("/companyDashboard").get(authenticateUser, companyDashboard);
+router.route("/adminDashboard").get(adminDashboard);
 
 router.route("/").get(getAllUsers);
 router.route("/:id").get(getProfile);

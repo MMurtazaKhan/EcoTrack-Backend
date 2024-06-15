@@ -7,6 +7,9 @@ import { sendMailToUser } from "../utils/email.js";
 dotenv.config();
 
 import Stripe from "stripe";
+import Post from "../models/postModel.js";
+import mongoose from "mongoose";
+import Voucher from "../models/voucherModel.js";
 const stripe = Stripe(process.env.SECRET_KEY);
 
 //Register User
@@ -324,6 +327,80 @@ const grantCredit = asyncHandler(async (req, res) => {
   }
 });
 
+const companyDashboard = asyncHandler(async (req, res) => {
+  try {
+    const { userId } = req.query;
+    console.log("userId: ", userId);
+    if (!userId) {
+      return res.status(400).json({ message: "Insufficient details" });
+    }
+    const user = await User.findById(userId);
+
+    const stats = await Post.aggregate([
+      { $match: { user: new mongoose.Types.ObjectId(userId) } },
+      {
+        $group: {
+          _id: null,
+          totalLikes: { $sum: { $size: "$likes" } },
+          totalComments: { $sum: { $size: "$comments" } },
+        },
+      },
+    ]);
+
+    const data = {
+      remainingBids: user.creditLimit ? user.creditLimit : 0,
+      totalLikes: stats[0] ? stats[0].totalLikes : 0,
+      totalComments: stats[0] ? stats[0].totalComments : 0,
+    };
+
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    console.log("error: ", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+// const companyDashboard = asyncHandler(async (req, res) => {
+//   const users = await User.find({ role: "user" });
+
+//   if (users.length > 0) {
+//     res.status(200);
+//     res.json(users);
+//   } else {
+//     res.status(409);
+//     throw new Error("No user found");
+//   }
+// });
+
+const adminDashboard = asyncHandler(async (req, res) => {
+  try {
+    const { userId } = req.query;
+    console.log("userId: ", userId);
+    if (!userId) {
+      return res.status(400).json({ message: "Insufficient details" });
+    }
+    const userCount = await User.find({ role: "user" }).count();
+    const companyCount = await User.find({ role: "company" }).count();
+
+    const voucherUsersCount = await Voucher.aggregate([
+      { $unwind: "$users" },
+      { $group: { _id: "$users" } },
+      { $group: { _id: null, count: { $sum: 1 } } },
+    ]);
+
+    const data = {
+      totalUsers: userCount ? userCount : 0,
+      totalCompanies: companyCount ? companyCount : 0,
+      totalVoucherUsers: voucherUsersCount[0] ? voucherUsersCount[0].count : 0,
+    };
+
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    console.log("error: ", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
 export {
   registerUser,
   authUser,
@@ -339,4 +416,6 @@ export {
   resetPassword,
   payment,
   grantCredit,
+  companyDashboard,
+  adminDashboard,
 };
