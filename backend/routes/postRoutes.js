@@ -16,7 +16,7 @@ import { authenticateUser } from "../middleware/error.js";
 
 const router = express.Router();
 
-router.route("/").get(getAllMyAds);
+router.route("/").get(getAllPosts);
 router.route("/advertisement").get(getAllMyAds);
 // router.route("advertisement/:postId").delete(authenticateUser, deleteAd);
 
