@@ -70,12 +70,33 @@ const postAds = async (req, res) => {
 };
 
 // Get All Posts
+// const getAllPosts = async (req, res) => {
+//   try {
+//     const posts = await Post.find()
+//       .populate({
+//         path: "user",
+//         select: "name profilePic companyName",
+//       })
+//       .populate({
+//         path: "comments.user",
+//         select: "name profilePic",
+//       })
+//       .sort({ createdAt: -1 })
+//       .exec();
+//     res.json(posts);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ message: "Server Error" });
+//   }
+// };
+
 const getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find()
+    // Fetch only regular posts
+    const regularPosts = await Post.find({ isTypeAd: false })
       .populate({
         path: "user",
-        select: "name profilePic",
+        select: "name profilePic companyName",
       })
       .populate({
         path: "comments.user",
@@ -83,9 +104,31 @@ const getAllPosts = async (req, res) => {
       })
       .sort({ createdAt: -1 })
       .exec();
+
+    // Fetch ads
+    const ads = await Post.find({ isTypeAd: true })
+      .populate({
+        path: "user",
+        select: "name profilePic companyName",
+      })
+      .sort({ createdAt: -1 })
+      .exec();
+
+    // Interleave ads after every 3 regular posts
+    const posts = [];
+    let adIndex = 0;
+
+    for (let i = 0; i < regularPosts.length; i++) {
+      posts.push(regularPosts[i]);
+      if ((i + 1) % 3 === 0 && adIndex < ads.length) {
+        // After every 3 posts, insert an ad if available
+        posts.push(ads[adIndex++]);
+      }
+    }
+
     res.json(posts);
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching posts and ads:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
