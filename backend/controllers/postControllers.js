@@ -70,26 +70,6 @@ const postAds = async (req, res) => {
 };
 
 // Get All Posts
-// const getAllPosts = async (req, res) => {
-//   try {
-//     const posts = await Post.find()
-//       .populate({
-//         path: "user",
-//         select: "name profilePic companyName",
-//       })
-//       .populate({
-//         path: "comments.user",
-//         select: "name profilePic",
-//       })
-//       .sort({ createdAt: -1 })
-//       .exec();
-//     res.json(posts);
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: "Server Error" });
-//   }
-// };
-
 const getAllPosts = async (req, res) => {
   try {
     // Fetch only regular posts
@@ -137,16 +117,6 @@ const getAllMyAds = async (req, res) => {
   try {
     const { userId } = req.query;
     const posts = await Post.find({ user: userId, isTypeAd: true });
-    // .populate({
-    //   path: "user",
-    //   select: "name profilePic",
-    // })
-    // .populate({
-    //   path: "comments.user",
-    //   select: "name profilePic",
-    // })
-    // .sort({ createdAt: -1 })
-    // .exec();
     res.json(posts);
   } catch (error) {
     console.log(error);
