@@ -16,6 +16,7 @@ import { errorHandler, notFound } from "./backend/middleware/error.js";
 import cron from "node-cron";
 import cors from "cors";
 import { deleteOldStories } from "./backend/utils/croneOperations.js";
+import corsOptions from "./backend/constants/corsOptions.js";
 
 dotenv.config();
 
@@ -23,12 +24,7 @@ const app = express();
 app.use(express.json());
 
 // CORS middleware
-app.use(
-  cors({
-    origin: "https://ecotrack-admin-dashboard.vercel.app",
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
 
 // Routes
 app.use("/api/users", userRoutes);
