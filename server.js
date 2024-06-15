@@ -44,7 +44,7 @@ app.use("/api/voucher", voucherRoutes);
 
 // Define a sample route
 app.get("/", (req, res) => {
-  res.send("Hello, World!");
+  res.send("EcoTrack backend running");
 });
 
 app.use(notFound);
