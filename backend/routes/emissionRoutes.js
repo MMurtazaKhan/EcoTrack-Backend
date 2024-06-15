@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.route("/addEmission").post(authenticateUser, addEmission);
 router.get('/weekly/:id', authenticateUser, getWeeklyEmissionsData);
-router.route("/allMyEmission").get(authenticateUser, getAllMyEmissions);
+router.route("/:id").get(authenticateUser, getAllMyEmissions);
 router.route("/").get(authenticateUser, getSingleEmission);
 
 export default router;

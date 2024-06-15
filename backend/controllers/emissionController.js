@@ -62,8 +62,10 @@ export const getWeeklyEmissionsData = asyncHandler(async (req, res) => {
 
 // route for getting all emissions
 const getAllMyEmissions = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  
   try {
-    const emissions = await Emission.find({ user: req.userId });
+    const emissions = await Emission.find({ user: id });
     return res.status(200).json(emissions);
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error" });
