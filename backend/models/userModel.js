@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
+    creditLimit: {
+      type: Number,
+      default: 0,
+    },
+
     companyName: {
       type: String,
       default: false,

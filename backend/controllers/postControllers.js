@@ -47,6 +47,10 @@ const addPost = async (req, res) => {
 const postAds = async (req, res) => {
   try {
     const user = await User.findById(req.body.user);
+
+    if (user.creditLimit <= 0) {
+      return res.status(400).json({ message: "Please buy credit to post Ad" });
+    }
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -54,6 +58,9 @@ const postAds = async (req, res) => {
     const newPost = new Post(req.body);
 
     const savedPost = await newPost.save();
+
+    user.creditLimit -= 1;
+    await user.save();
 
     res.status(201).json(savedPost);
   } catch (error) {

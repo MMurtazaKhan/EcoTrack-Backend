@@ -4,8 +4,10 @@ import generateToken from "../utils/generateToken.js";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import { sendMailToUser } from "../utils/email.js";
-
 dotenv.config();
+
+import Stripe from "stripe";
+const stripe = Stripe(process.env.SECRET_KEY);
 
 //Register User
 const registerUser = async (req, res) => {
@@ -287,6 +289,41 @@ const resetPassword = asyncHandler(async (req, res) => {
   }
 });
 
+const payment = asyncHandler(async (req, res) => {
+  try {
+    const myPayment = await stripe.paymentIntents.create({
+      amount: req.body.amount * 100,
+      currency: "usd",
+      payment_method: req.body.paymentMethodId,
+      metadata: {
+        company: "EcoTrack",
+      },
+    });
+
+    res
+      .status(200)
+      .json({ success: true, client_secret: myPayment.client_secret });
+  } catch (error) {
+    console.log("error: ", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+const grantCredit = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.body.id,
+      { $inc: { creditLimit: 2 } },
+      { new: true }
+    );
+
+    res.status(200).json({ success: true, message: "Credit Increased" });
+  } catch (error) {
+    console.log("error: ", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
 export {
   registerUser,
   authUser,
@@ -300,4 +337,6 @@ export {
   forgotPassword,
   verifyCode,
   resetPassword,
+  payment,
+  grantCredit,
 };

@@ -8,6 +8,8 @@ import {
   forgotPassword,
   getAllUsers,
   getProfile,
+  grantCredit,
+  payment,
   registerUser,
   resetPassword,
   verifyCode,
@@ -21,6 +23,9 @@ router.route("/").delete(deleteAllUsers);
 router.route("/register").post(registerUser);
 router.route("/admin/login").post(authAdmin);
 router.route("/login").post(authUser);
+router.route("/payment").post(authenticateUser, payment);
+router.route("/credit").put(authenticateUser, grantCredit);
+
 // router.route('/update').put(updateUserDetails)
 // router.route('/delete').delete(deleteUserAccount)
 router.route("/register/google").post(authGoogle);
