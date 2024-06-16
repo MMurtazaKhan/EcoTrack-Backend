@@ -1,4 +1,5 @@
 import Goal from "../models/goalModel.js";
+import Emission from "../models/emissionModel.js";
 import asyncHandler from "express-async-handler";
 
 // Create a new goal
@@ -22,6 +23,7 @@ export const addGoal = asyncHandler(async (req, res) => {
   }
 });
 
+// Weekly Goals Data
 export const getWeeklyGoalsData = asyncHandler(async (req, res) => {
   try {
     const sevenDaysAgo = new Date();
@@ -36,6 +38,76 @@ export const getWeeklyGoalsData = asyncHandler(async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 });
+
+export const getWeeklyData = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    // Calculate date range for past 7 days
+    const today = new Date();
+    const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+
+    // Fetch goals set in the last 7 days
+    const goals = await Goal.find({
+      userId,
+      createdAt: { $gte: sevenDaysAgo, $lte: today }
+    });
+
+    // Initialize an object to store emissions data
+    const emissionsData = {};
+
+    // Function to accumulate emissions data for a specific date range
+    const accumulateEmissionsData = async (startDate, endDate, category) => {
+      const emissions = await Emission.find({
+        user: userId,
+        category,
+        createdAt: { $gte: startDate, $lte: endDate }
+      });
+
+      const totalEmissions = emissions.reduce((total, emission) => {
+        return total + emission.carbonEmitted;
+      }, 0);
+
+      return totalEmissions;
+    };
+
+    // Iterate over each goal and accumulate emissions data
+    for (const goal of goals) {
+      const { category, percentage, startDate, endDate } = goal;
+
+      // Calculate 7 days before startDate
+      const sevenDaysBeforeStartDate = new Date(startDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+      // Accumulate emissions data before startDate
+      const emissionsBeforeStartDate = await accumulateEmissionsData(sevenDaysBeforeStartDate, startDate, category);
+
+      // Accumulate emissions data between startDate and endDate
+      const emissionsDuringGoalPeriod = await accumulateEmissionsData(startDate, endDate, category);
+
+      // Store emissions data for the category
+      if (!emissionsData[category]) {
+        emissionsData[category] = {
+          category,
+          percentage,
+          emissionsBeforeStartDate: 0,
+          emissionsDuringGoalPeriod: 0
+        };
+      }
+
+      emissionsData[category].emissionsBeforeStartDate += emissionsBeforeStartDate;
+      emissionsData[category].emissionsDuringGoalPeriod += emissionsDuringGoalPeriod;
+    }
+
+    // Convert emissionsData object to an array of values
+    const result = Object.values(emissionsData);
+
+    res.status(200).json(result);
+
+  } catch (error) {
+    console.error('Error fetching weekly goals data and accumulating emissions:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
 
 // Get all goals for a user
 export const getGoals = asyncHandler(async (req, res) => {
