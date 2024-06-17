@@ -62,7 +62,6 @@ const deleteCompany = async (req, res) => {
       return res.status(403).json({ message: "User is not a company" });
     }
 
-    // Delete the company
     await User.findByIdAndDelete(companyId);
 
     res.status(200).json({ message: "Company deleted successfully" });
