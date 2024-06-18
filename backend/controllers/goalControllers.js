@@ -25,11 +25,14 @@ export const addGoal = asyncHandler(async (req, res) => {
 
 // Weekly Goals Data
 export const getWeeklyGoalsData = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  
   try {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const recentGoals = await Goal.find({
+      userId: id,
       createdAt: { $gte: sevenDaysAgo }
     });
 
