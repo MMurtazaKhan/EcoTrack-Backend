@@ -5,9 +5,11 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon ./server.js",
-    "docker": "docker run -p 5000:5000 abdullahdev64/sample:sample",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon -L ./server.js",
+    "docker": "docker run --rm -it -p 5000:5000 -v E:/FYP/EcoTrack-Backend:/app --env-file=./.env  abdullahdev64/ecotrack-server:latest",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-docker": "docker build -t abdullahdev64/ecotrack-server .",
+    "push-docker": "docker push abdullahdev64/ecotrack-server:latest"
   },
   "author": "",
   "license": "ISC",
@@ -22,7 +24,9 @@
     "mongoose": "^7.6.1",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.13",
-    "nodemon": "^3.0.1",
     "stripe": "^15.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }
