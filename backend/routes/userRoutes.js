@@ -24,7 +24,7 @@ router.route("/adminDashboard").get(adminDashboard);
 
 router.route("/").get(getAllUsers);
 router.route("/:id").get(getProfile);
-router.route("/").delete(deleteAllUsers);
+router.route("/").delete(authenticateUser, deleteAllUsers);
 router.route("/register").post(registerUser);
 router.route("/admin/login").post(authAdmin);
 router.route("/login").post(authUser);

@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`User API tests should authenticate a user 1`] = `
+{
+  "__v": 0,
+  "_id": "667e94a8442a4c546e87b17c",
+  "companyName": "false",
+  "createdAt": "2024-06-28T10:47:04.113Z",
+  "creditLimit": 0,
+  "email": "testuser@example.com",
+  "name": "Test User",
+  "profilePic": "http://example.com/profile-pic.jpg",
+  "rewardHistory": [],
+  "role": "user",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2N2U5NGE4NDQyYTRjNTQ2ZTg3YjE3YyIsImlhdCI6MTcxOTU3MTYyNCwiZXhwIjoxNzIyMTYzNjI0fQ.2mAH2SxZcR2foCBCgttw0enpPHlcxXo1p5qOs7_TOIo",
+  "updatedAt": "2024-06-28T10:47:04.113Z",
+  "virtualCoins": 0,
+}
+`;
+
+exports[`User API tests should delete all users 1`] = `
+{
+  "message": "All users deleted successfully",
+}
+`;
+
+exports[`User API tests should get all users 1`] = `
+[
+  {
+    "__v": 0,
+    "_id": "667e94a8442a4c546e87b17c",
+    "companyName": "false",
+    "createdAt": "2024-06-28T10:47:04.113Z",
+    "creditLimit": 0,
+    "email": "testuser@example.com",
+    "name": "Test User",
+    "password": "$2a$10$Cu.hKFKCvVxMwdg6iDWUoerNmcZLCF1ZfbVfoAWXc3ZM6wa7KqkgK",
+    "profilePic": "http://example.com/profile-pic.jpg",
+    "rewardHistory": [],
+    "role": "user",
+    "updatedAt": "2024-06-28T10:47:04.113Z",
+    "virtualCoins": 0,
+  },
+]
+`;
+
+exports[`User API tests should register a new user 1`] = `
+{
+  "__v": 0,
+  "_id": "667e94a8442a4c546e87b17c",
+  "companyName": "false",
+  "createdAt": "2024-06-28T10:47:04.113Z",
+  "creditLimit": 0,
+  "email": "testuser@example.com",
+  "name": "Test User",
+  "profilePic": "http://example.com/profile-pic.jpg",
+  "rewardHistory": [],
+  "role": "user",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2N2U5NGE4NDQyYTRjNTQ2ZTg3YjE3YyIsImlhdCI6MTcxOTU3MTYyNCwiZXhwIjoxNzIyMTYzNjI0fQ.2mAH2SxZcR2foCBCgttw0enpPHlcxXo1p5qOs7_TOIo",
+  "updatedAt": "2024-06-28T10:47:04.113Z",
+  "virtualCoins": 0,
+}
+`;
