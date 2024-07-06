@@ -80,7 +80,7 @@ const editProfile = asyncHandler(async (req, res) => {
     // Update user data with provided information
     if (name) user.name = name;
     if (email) {
-      if (User.findOne({ email })) {
+      // if (User.findOne({ email })) {
         console.log("user already exist with this email");
         return res
           .status(500)
