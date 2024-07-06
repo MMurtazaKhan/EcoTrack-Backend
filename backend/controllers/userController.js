@@ -67,7 +67,6 @@ const getProfile = asyncHandler(async (req, res) => {
 const editProfile = asyncHandler(async (req, res) => {
   const { name, email, profilePic, password } = req.body;
   console.log("image from client is", profilePic);
-  // console.log("image from client is", typeof profilePic);
   const userId = req.userId;
 
   try {

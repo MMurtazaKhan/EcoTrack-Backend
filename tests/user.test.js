@@ -9,7 +9,7 @@ describe('User API tests', () => {
     const newUser = {
       name: 'Test User',
       email: 'testtuserr@example.com',
-      password: 'password123',
+      // password: 'password123',
       profilePic: 'http://example.com/profile-pic.jpg'
     };
 
@@ -23,7 +23,7 @@ describe('User API tests', () => {
   it('should authenticate a user', async () => {
     const user = {
       email: 'testuser@example.com',
-      password: 'password123'
+      // password: ''
     };
 
     const response = await request(baseUrl)
