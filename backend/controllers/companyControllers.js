@@ -8,7 +8,7 @@ const registerCompany = async (req, res) => {
   try {
     let { name, email, companyName, password } = req.body;
 
-    // let user = await User.findOne({ email });
+    let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: "Company already exists" });
     }
