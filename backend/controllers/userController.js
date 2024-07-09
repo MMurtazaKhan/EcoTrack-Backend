@@ -1,4 +1,5 @@
 import User from "../models/userModel.js";
+import Emission from '../models/emissionModel.js';
 import asyncHandler from "express-async-handler";
 import generateToken from "../utils/generateToken.js";
 import dotenv from "dotenv";
@@ -130,9 +131,32 @@ const authUser = asyncHandler(async (req, res) => {
   if (isPasswordValid) {
     const { password, ...userWithoutPassword } = user.toObject();
 
+    // Calculate total emissions for the current month
+    const startOfMonth = new Date(new Date().setDate(1));
+    const endOfMonth = new Date(new Date().setMonth(new Date().getMonth() + 1, 0));
+
+    const totalEmissions = await Emission.aggregate([
+      { 
+        $match: {
+          user: new mongoose.Types.ObjectId(user._id),
+          createdAt: {
+            $gte: startOfMonth,
+            $lt: endOfMonth
+          }
+        }
+      },
+      { 
+        $group: {
+          _id: null,
+          total: { $sum: '$carbonEmitted' }
+        }
+      }
+    ]);
+
     res.json({
       ...userWithoutPassword,
       token: generateToken(user._id, user.isAdmin),
+      totalEmissions: totalEmissions.length > 0 ? totalEmissions[0].total : 0,
     });
   } else {
     res.status(401);
