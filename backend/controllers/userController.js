@@ -131,12 +131,12 @@ const authUser = asyncHandler(async (req, res) => {
   if (isPasswordValid) {
     const { password, ...userWithoutPassword } = user.toObject();
 
-    // Calculate total emissions for the current month
+    // Calculate emissions for each category for the current month
     const startOfMonth = new Date(new Date().setDate(1));
     const endOfMonth = new Date(new Date().setMonth(new Date().getMonth() + 1, 0));
 
-    const totalEmissions = await Emission.aggregate([
-      { 
+    const emissionsByCategory = await Emission.aggregate([
+      {
         $match: {
           user: new mongoose.Types.ObjectId(user._id),
           createdAt: {
@@ -145,18 +145,23 @@ const authUser = asyncHandler(async (req, res) => {
           }
         }
       },
-      { 
+      {
         $group: {
-          _id: null,
+          _id: '$category',
           total: { $sum: '$carbonEmitted' }
         }
       }
     ]);
 
+    const emissions = emissionsByCategory.reduce((acc, emission) => {
+      acc[emission._id] = emission.total;
+      return acc;
+    }, {});
+
     res.json({
       ...userWithoutPassword,
       token: generateToken(user._id, user.isAdmin),
-      totalEmissions: totalEmissions.length > 0 ? totalEmissions[0].total : 0,
+      emissions,
     });
   } else {
     res.status(401);
