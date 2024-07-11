@@ -15,7 +15,7 @@ import voucherRoutes from "./backend/routes/voucherRoutes.js";
 import { errorHandler, notFound } from "./backend/middleware/error.js";
 import cron from "node-cron";
 import cors from "cors";
-import { deleteOldStories } from "./backend/utils/croneOperations.js";
+import { checkGoalsAndAwardUsers, deleteOldStories } from "./backend/utils/croneOperations.js";
 
 dotenv.config();
 
@@ -62,5 +62,8 @@ connectDB().then(() => {
 cron.schedule("0 20 * * *", function () {
   deleteOldStories();
 });
+
+// To run at midnight on the first day of every month 
+cron.schedule('0 0 1 * *', checkGoalsAndAwardUsers);
 
 export default app;
