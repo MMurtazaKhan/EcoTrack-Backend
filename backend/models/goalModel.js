@@ -15,10 +15,6 @@ const goalSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    previous: {
-      type: Number,
-      required: true
-    },
     target: {
       type: Number,
       required: true

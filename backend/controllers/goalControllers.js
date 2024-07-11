@@ -6,7 +6,7 @@ import asyncHandler from "express-async-handler";
 // Create a new goal
 export const addGoal = asyncHandler(async (req, res) => {
   try {
-    const { category, percentage, target, startDate, endDate, goalAchieved, previous } = req.body;
+    const { category, percentage, target, startDate, endDate, goalAchieved } = req.body;
     let { userId } = req;
 
     // Create new goal with previous emission data
@@ -14,7 +14,6 @@ export const addGoal = asyncHandler(async (req, res) => {
       userId,
       category,
       percentage,
-      previous,
       target,
       startDate,
       endDate,
@@ -120,20 +119,23 @@ export const getMonthlyData = async (req, res) => {
   const userId = req.params.id;
 
   try {
-    // Calculate date range for current month and previous 30 days
     const today = new Date();
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // Start of current month
-    const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
 
     // Fetch active goals for the current month
     const activeGoals = await Goal.find({
       userId,
-      startDate: { $lte: today }, // Start date on or before today
+      startDate: { $lte: today },
       $or: [
-        { endDate: { $gte: today } }, // End date on or after today
-        { endDate: null } // Or no end date specified (ongoing goals)
+        { endDate: { $gte: today } },
+        { endDate: null }
       ]
     });
+
+    if (!activeGoals) {
+      console.log('No active goals found for user:', userId);
+      return res.status(404).json({ error: 'No active goals found' });
+    }
 
     // Fetch targets for each active category for the current month
     const targets = activeGoals.reduce((acc, goal) => {
@@ -141,10 +143,8 @@ export const getMonthlyData = async (req, res) => {
       return acc;
     }, {});
 
-    // Initialize an object to store emissions data
     const emissionsData = {};
 
-    // Function to accumulate emissions data for a specific date range
     const accumulateEmissionsData = async (startDate, endDate, category) => {
       const emissions = await Emission.find({
         user: userId,
@@ -159,20 +159,17 @@ export const getMonthlyData = async (req, res) => {
       return totalEmissions;
     };
 
-    // Iterate over each active goal and accumulate emissions data
     for (const goal of activeGoals) {
       const { category, startDate, endDate } = goal;
 
-      // Calculate start date of the month before the goal start date
+      // Calculate start and end dates for the emissions periods
       const startOfPreviousMonth = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1);
+      const endOfNextMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 2, 0); // Last day of the next month
 
-      // Accumulate emissions data for the month before startDate
+      // Accumulate emissions data
       const emissionsBeforeGoalPeriod = await accumulateEmissionsData(startOfPreviousMonth, startOfMonth, category);
+      const emissionsDuringGoalPeriod = await accumulateEmissionsData(startOfMonth, endOfNextMonth, category);
 
-      // Accumulate emissions data for the current month starting from startDate
-      const emissionsDuringGoalPeriod = await accumulateEmissionsData(startOfMonth, today, category);
-
-      // Store emissions data for the category including start date and end date
       emissionsData[category] = {
         category,
         percentage: goal.percentage,
@@ -184,7 +181,6 @@ export const getMonthlyData = async (req, res) => {
       };
     }
 
-    // Convert emissionsData object to an array of values
     const result = Object.values(emissionsData);
 
     res.status(200).json(result);
@@ -194,6 +190,7 @@ export const getMonthlyData = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 // Get all goals for a user
 export const getGoals = asyncHandler(async (req, res) => {
