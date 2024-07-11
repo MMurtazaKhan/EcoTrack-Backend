@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import Emission from '../models/emissionModel.js';
+import Goal from '../models/goalModel.js';
 import asyncHandler from "express-async-handler";
 import generateToken from "../utils/generateToken.js";
 import dotenv from "dotenv";
@@ -57,8 +58,50 @@ const getProfile = asyncHandler(async (req, res) => {
 
     const { password, ...userWithoutPassword } = user.toObject();
 
-    // Return the user profile data as the response
-    res.json({ userWithoutPassword });
+    // Calculate emissions for each category for the current month
+    const startOfMonth = new Date(new Date().setDate(1));
+    const endOfMonth = new Date(new Date().setMonth(new Date().getMonth() + 1, 0));
+
+    const emissionsByCategory = await Emission.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(user._id),
+          createdAt: {
+            $gte: startOfMonth,
+            $lt: endOfMonth
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$category',
+          total: { $sum: '$carbonEmitted' }
+        }
+      }
+    ]);
+
+    const emissions = emissionsByCategory.reduce((acc, emission) => {
+      acc[emission._id] = emission.total;
+      return acc;
+    }, {});
+
+    // Calculate total emissions
+    const totalEmissions = Object.values(emissions).reduce((sum, value) => sum + value, 0);
+
+    // Fetch goals for the user where endDate is in the future and goal is not achieved
+    const goals = await Goal.find({
+      userId: user._id,
+      endDate: { $gt: new Date() },
+      goalAchieved: false
+    });
+
+    // Return the user profile data and emissions as the response
+    res.json({
+      ...userWithoutPassword,
+      emissions,
+      totalEmissions,
+      goals
+    });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
@@ -158,10 +201,22 @@ const authUser = asyncHandler(async (req, res) => {
       return acc;
     }, {});
 
+    // Calculate total emissions
+    const totalEmissions = Object.values(emissions).reduce((sum, value) => sum + value, 0);
+
+    // Fetch goals for the user where endDate is in the future and goal is not achieved
+    const goals = await Goal.find({
+      userId: user._id,
+      endDate: { $gt: new Date() },
+      goalAchieved: false
+    });
+
     res.json({
       ...userWithoutPassword,
       token: generateToken(user._id, user.isAdmin),
       emissions,
+      totalEmissions,
+      goals,
     });
   } else {
     res.status(401);

@@ -15,6 +15,10 @@ const goalSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    target: {
+      type: Number,
+      required: true
+    },
     startDate: {
       type: Date,
       required: true,
