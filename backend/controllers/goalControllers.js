@@ -5,13 +5,14 @@ import asyncHandler from "express-async-handler";
 // Create a new goal
 export const addGoal = asyncHandler(async (req, res) => {
   try {
-    const { category, percentage, startDate, endDate, goalAchieved } = req.body;
+    const { category, percentage, target, startDate, endDate, goalAchieved } = req.body;
     const userId = req.userId;
 
     const newGoal = await Goal.create({
       userId,
       category,
       percentage,
+      target,
       startDate,
       endDate,
       goalAchieved,
@@ -127,6 +128,12 @@ export const getMonthlyData = async (req, res) => {
       startDate: { $gte: startOfMonth, $lte: today }
     });
 
+    // Fetch targets for each category for the current month
+    const targets = goals.reduce((acc, goal) => {
+      acc[goal.category] = goal.target;
+      return acc;
+    }, {});
+
     // Get all unique categories from the goals
     const categoriesWithGoals = goals.map(goal => goal.category);
     const allCategories = ['Food', 'Transportation', 'Meal']; // Update with your actual list of categories
@@ -154,26 +161,22 @@ export const getMonthlyData = async (req, res) => {
 
     // Iterate over each goal and accumulate emissions data
     for (const goal of goals) {
-      const { category, percentage, startDate, endDate } = goal;
+      const { category, startDate } = goal;
+
+      // Accumulate emissions data for the month before startDate
+      const emissionsBeforeGoalPeriod = await accumulateEmissionsData(startOfMonth, startDate, category);
 
       // Accumulate emissions data for the current month starting from startDate
       const emissionsDuringGoalPeriod = await accumulateEmissionsData(startDate, today, category);
 
-      // Accumulate emissions data for the previous 30 days
-      const emissionsBeforeGoalPeriod = await accumulateEmissionsData(thirtyDaysAgo, startDate, category);
-
       // Store emissions data for the category
-      if (!emissionsData[category]) {
-        emissionsData[category] = {
-          category,
-          percentage,
-          emissionsBeforeGoalPeriod: 0,
-          emissionsDuringGoalPeriod: 0
-        };
-      }
-
-      emissionsData[category].emissionsBeforeGoalPeriod += emissionsBeforeGoalPeriod;
-      emissionsData[category].emissionsDuringGoalPeriod += emissionsDuringGoalPeriod;
+      emissionsData[category] = {
+        category,
+        percentage: goal.percentage,
+        target: targets[category],
+        emissionsBeforeGoalPeriod,
+        emissionsDuringGoalPeriod
+      };
     }
 
     // Add categories without goals to emissionsData with default values
@@ -181,6 +184,7 @@ export const getMonthlyData = async (req, res) => {
       emissionsData[category] = {
         category,
         percentage: 0, // Set percentage to default value or null as needed
+        target: 0, // Set target to default value or null as needed
         emissionsBeforeGoalPeriod: 0,
         emissionsDuringGoalPeriod: 0
       };
