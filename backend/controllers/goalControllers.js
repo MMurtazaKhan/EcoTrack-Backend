@@ -6,39 +6,12 @@ import asyncHandler from "express-async-handler";
 // Create a new goal
 export const addGoal = asyncHandler(async (req, res) => {
   try {
-    const { category, percentage, target, endDate, goalAchieved } = req.body;
-    const userId = req.userId;
-
-    // Get the current date and time as startDate
-    const startDate = new Date();
-
-    // Calculate date range for the previous month
-    const startOfPreviousMonth = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1);
-    const endOfPreviousMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 0);
-
-    // Aggregate emissions for the specified category and user in the previous month
-    const emissions = await Emission.aggregate([
-      {
-        $match: {
-          user: mongoose.Types.ObjectId.createFromHexString(userId), // Create ObjectId from string
-          category,
-          createdAt: { $gte: startOfPreviousMonth, $lte: endOfPreviousMonth }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: "$carbonEmitted" }
-        }
-      }
-    ]);
-
-    // Extract previous emission total or default to 0 if no emissions found
-    const previous = emissions.length > 0 ? emissions[0].total : 0;
+    const { category, percentage, target, endDate, goalAchieved, previous } = req.body;
+    let { userId } = req;
 
     // Create new goal with previous emission data
     const newGoal = await Goal.create({
-      userId: mongoose.Types.ObjectId.createFromHexString(userId), // Ensure userId is converted to ObjectId
+      userId,
       category,
       percentage,
       previous,
