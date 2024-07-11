@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import Story from "../models/storyModel.js";
-import User from '../models/userModel.js';
-import Goal from '../models/goalModel.js';
-import Emission from '../models/emissionsModel.js';
-import Reward from '..rewardsModel.js';
+import User from "../models/userModel.js";
+import Emission from "../models/emissionModel.js";
+import Reward from "../models/rewardsModel.js";
+import Goal from "../models/goalModel.js";
 
 export const deleteOldStories = async () => {
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -30,8 +30,14 @@ export const checkGoalsAndAwardUsers = async () => {
 
   for (const goal of goals) {
     const emissions = await Emission.aggregate([
-      { $match: { user: goal.userId, category: goal.category, createdAt: { $gte: lastMonth, $lte: currentDate } } },
-      { $group: { _id: null, totalEmissions: { $sum: '$carbonEmitted' } } }
+      {
+        $match: {
+          user: goal.userId,
+          category: goal.category,
+          createdAt: { $gte: lastMonth, $lte: currentDate },
+        },
+      },
+      { $group: { _id: null, totalEmissions: { $sum: "$carbonEmitted" } } },
     ]);
 
     const totalEmissions = emissions[0] ? emissions[0].totalEmissions : 0;
@@ -46,8 +52,8 @@ export const checkGoalsAndAwardUsers = async () => {
 
       const reward = new Reward({
         userId: user._id,
-        action: 'goalAchieved',
-        coinsEarned: 50
+        action: "goalAchieved",
+        coinsEarned: 50,
       });
       await reward.save();
     }
