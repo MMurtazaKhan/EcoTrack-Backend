@@ -9,6 +9,7 @@ const registerCompany = async (req, res) => {
     let { name, email, companyName, password } = req.body;
 
     let user = await User.findOne({ email });
+    // Company check added
     if (user && user.role === "company") {
       return res.status(400).json({ message: "Company already exists" });
     }
