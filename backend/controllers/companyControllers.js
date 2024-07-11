@@ -27,7 +27,7 @@ const registerCompany = async (req, res) => {
 
     const { password: _, ...userWithoutPassword } = savedUser.toObject();
 
-    sendMailToCompany(email, name, email, password);
+    await sendMailToCompany(email, name, email, password);
     res.status(201).json({
       ...userWithoutPassword,
     });
