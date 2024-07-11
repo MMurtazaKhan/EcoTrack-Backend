@@ -313,7 +313,7 @@ const forgotPassword = async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000);
 
-    sendMailToUser(
+    await sendMailToUser(
       email,
       `This is the mail for forgot password. This is your ${otp} you can use it to reset your password
       `

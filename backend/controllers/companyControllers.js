@@ -9,7 +9,8 @@ const registerCompany = async (req, res) => {
     let { name, email, companyName, password } = req.body;
 
     let user = await User.findOne({ email });
-    if (user) {
+    // Company check added
+    if (user && user.role === "company") {
       return res.status(400).json({ message: "Company already exists" });
     }
 
@@ -26,7 +27,7 @@ const registerCompany = async (req, res) => {
 
     const { password: _, ...userWithoutPassword } = savedUser.toObject();
 
-    sendMailToCompany(email, name, email, password);
+    await sendMailToCompany(email, name, email, password);
     res.status(201).json({
       ...userWithoutPassword,
     });
