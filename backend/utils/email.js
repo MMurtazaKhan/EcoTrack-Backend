@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 
 export const sendMailToUser = async (email, emailTemplate) => {
-  // console.log("sending mail to user: ", email);
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -9,21 +8,20 @@ export const sendMailToUser = async (email, emailTemplate) => {
       pass: process.env.PASS,
     },
   });
-  var mailOptions = {
+
+  const mailOptions = {
     from: `'EcoTrack' <${process.env.EMAIL}>`,
     to: email,
-    subject: "Fogot Password",
+    subject: "Forgot Password",
     html: emailTemplate,
   };
 
-  transporter.sendMail(mailOptions, function (err, info) {
-    if (err) {
-      console.log(err, "errrrrrrrrrrr");
-      // return next(new errorHandler(err.message, 401));
-    } else {
-      // return next(new errorHandler(userData, 200));
-    }
-  });
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent: ' + info.response);
+  } catch (err) {
+    console.error('Error sending email:', err);
+  }
 };
 
 const createEmailTemplate = (name, email, password) => {
@@ -58,11 +56,10 @@ export const sendMailToCompany = async (email, companyName, companyEmail, compan
     html: createEmailTemplate(companyName, companyEmail, companyPassword),
   };
 
-  transporter.sendMail(mailOptions, function (err, info) {
-    if (err) {
-      console.log(err, "Error sending email");
-    } else {
-      console.log('Email sent: ' + info.response);
-    }
-  });
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent: ' + info.response);
+  } catch (err) {
+    console.error('Error sending email:', err);
+  }
 };
