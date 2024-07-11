@@ -1,26 +1,56 @@
 import Goal from "../models/goalModel.js";
+import mongoose from "mongoose";
 import Emission from "../models/emissionModel.js";
 import asyncHandler from "express-async-handler";
 
 // Create a new goal
 export const addGoal = asyncHandler(async (req, res) => {
   try {
-    const { category, percentage, target, startDate, endDate, goalAchieved } = req.body;
+    const { category, percentage, target, endDate, goalAchieved } = req.body;
     const userId = req.userId;
 
+    // Get the current date and time as startDate
+    const startDate = new Date();
+
+    // Calculate date range for the previous month
+    const startOfPreviousMonth = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1);
+    const endOfPreviousMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 0);
+
+    // Aggregate emissions for the specified category and user in the previous month
+    const emissions = await Emission.aggregate([
+      {
+        $match: {
+          user: mongoose.Types.ObjectId.createFromHexString(userId), // Create ObjectId from string
+          category,
+          createdAt: { $gte: startOfPreviousMonth, $lte: endOfPreviousMonth }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$carbonEmitted" }
+        }
+      }
+    ]);
+
+    // Extract previous emission total or default to 0 if no emissions found
+    const previous = emissions.length > 0 ? emissions[0].total : 0;
+
+    // Create new goal with previous emission data
     const newGoal = await Goal.create({
-      userId,
+      userId: mongoose.Types.ObjectId.createFromHexString(userId), // Ensure userId is converted to ObjectId
       category,
       percentage,
+      previous,
       target,
       startDate,
       endDate,
       goalAchieved,
     });
 
-    return res.status(201).json(newGoal);
+    res.status(201).json(newGoal);
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -122,24 +152,21 @@ export const getMonthlyData = async (req, res) => {
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // Start of current month
     const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
 
-    // Fetch goals set in the current month
-    const goals = await Goal.find({
+    // Fetch active goals for the current month
+    const activeGoals = await Goal.find({
       userId,
-      startDate: { $gte: startOfMonth, $lte: today }
+      startDate: { $lte: today }, // Start date on or before today
+      $or: [
+        { endDate: { $gte: today } }, // End date on or after today
+        { endDate: null } // Or no end date specified (ongoing goals)
+      ]
     });
 
-    // Fetch targets for each category for the current month
-    const targets = goals.reduce((acc, goal) => {
+    // Fetch targets for each active category for the current month
+    const targets = activeGoals.reduce((acc, goal) => {
       acc[goal.category] = goal.target;
       return acc;
     }, {});
-
-    // Get all unique categories from the goals
-    const categoriesWithGoals = goals.map(goal => goal.category);
-    const allCategories = ['Food', 'Transportation', 'Meal']; // Update with your actual list of categories
-
-    // Get categories without goals
-    const categoriesWithoutGoals = allCategories.filter(category => !categoriesWithGoals.includes(category));
 
     // Initialize an object to store emissions data
     const emissionsData = {};
@@ -159,36 +186,30 @@ export const getMonthlyData = async (req, res) => {
       return totalEmissions;
     };
 
-    // Iterate over each goal and accumulate emissions data
-    for (const goal of goals) {
-      const { category, startDate } = goal;
+    // Iterate over each active goal and accumulate emissions data
+    for (const goal of activeGoals) {
+      const { category, startDate, endDate } = goal;
+
+      // Calculate start date of the month before the goal start date
+      const startOfPreviousMonth = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1);
 
       // Accumulate emissions data for the month before startDate
-      const emissionsBeforeGoalPeriod = await accumulateEmissionsData(startOfMonth, startDate, category);
+      const emissionsBeforeGoalPeriod = await accumulateEmissionsData(startOfPreviousMonth, startOfMonth, category);
 
       // Accumulate emissions data for the current month starting from startDate
-      const emissionsDuringGoalPeriod = await accumulateEmissionsData(startDate, today, category);
+      const emissionsDuringGoalPeriod = await accumulateEmissionsData(startOfMonth, today, category);
 
-      // Store emissions data for the category
+      // Store emissions data for the category including start date and end date
       emissionsData[category] = {
         category,
         percentage: goal.percentage,
         target: targets[category],
         emissionsBeforeGoalPeriod,
-        emissionsDuringGoalPeriod
+        emissionsDuringGoalPeriod,
+        startDate,
+        endDate
       };
     }
-
-    // Add categories without goals to emissionsData with default values
-    categoriesWithoutGoals.forEach(category => {
-      emissionsData[category] = {
-        category,
-        percentage: 0, // Set percentage to default value or null as needed
-        target: 0, // Set target to default value or null as needed
-        emissionsBeforeGoalPeriod: 0,
-        emissionsDuringGoalPeriod: 0
-      };
-    });
 
     // Convert emissionsData object to an array of values
     const result = Object.values(emissionsData);

@@ -204,11 +204,13 @@ const authUser = asyncHandler(async (req, res) => {
     // Calculate total emissions
     const totalEmissions = Object.values(emissions).reduce((sum, value) => sum + value, 0);
 
-    // Fetch goals for the user where endDate is in the future and goal is not achieved
+    // Fetch all goals for the user, both active and historical
     const goals = await Goal.find({
       userId: user._id,
-      endDate: { $gt: new Date() },
-      goalAchieved: false
+      $or: [
+        { endDate: { $gt: new Date() } }, // Active goals (endDate in the future)
+        { goalAchieved: true } // Historical goals (goalAchieved is true)
+      ]
     });
 
     res.json({
@@ -220,7 +222,7 @@ const authUser = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(401);
-    throw new Error("Invalid email or Password");
+    throw new Error("Invalid email or password");
   }
 });
 
