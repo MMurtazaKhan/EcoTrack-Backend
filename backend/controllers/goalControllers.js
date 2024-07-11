@@ -6,7 +6,7 @@ import asyncHandler from "express-async-handler";
 // Create a new goal
 export const addGoal = asyncHandler(async (req, res) => {
   try {
-    const { category, percentage, target, endDate, goalAchieved, previous } = req.body;
+    const { category, percentage, target, startDate, endDate, goalAchieved, previous } = req.body;
     let { userId } = req;
 
     // Create new goal with previous emission data
