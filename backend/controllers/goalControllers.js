@@ -11,7 +11,6 @@ export const addGoal = asyncHandler(async (req, res) => {
     let { userId } = req;
 
     const goal = await Goal.findOne({ userId: userId, category: category });
-    console.log("goal: ", goal);
     if (goal) {
       console.log("it runs!!");
       return res.status(400).json({
